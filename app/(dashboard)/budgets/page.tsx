@@ -37,6 +37,7 @@ export default function BudgetsPage() {
         refetchOnFocus: true,
         refetchOnReconnect: true,
     });
+
     const [deleteBudget, { isLoading: isDeleting }] = useDeleteBudgetMutation();
 
     const {
@@ -52,7 +53,10 @@ export default function BudgetsPage() {
         return [...(budgets ?? [])].sort((a, b) => {
             if (a.year !== b.year) return b.year - a.year;
             if (a.month !== b.month) return b.month - a.month;
-            return a.categoryName.localeCompare(b.categoryName);
+            if (a.categoryName !== b.categoryName) {
+                return a.categoryName.localeCompare(b.categoryName);
+            }
+            return a.currency.localeCompare(b.currency);
         });
     }, [budgets]);
 
@@ -89,6 +93,7 @@ export default function BudgetsPage() {
                         }
                     />
                 </div>
+
                 <BudgetForm
                     budget={editingBudget}
                     onSuccess={() => setEditingBudget(null)}
@@ -115,7 +120,8 @@ export default function BudgetsPage() {
                                             {budget.year}
                                         </p>
                                         <p className="text-sm">
-                                            Amount: {budget.amount}
+                                            Amount: {budget.amount}{" "}
+                                            {budget.currency}
                                         </p>
                                     </div>
 
@@ -128,10 +134,11 @@ export default function BudgetsPage() {
                                         >
                                             Edit
                                         </Button>
+
                                         <DeleteConfirmDialog
                                             isLoading={isDeleting}
                                             title="Delete budget?"
-                                            description={`This will permanently remove the budget for "${budget.categoryName}".`}
+                                            description={`This will permanently remove the budget for "${budget.categoryName}" (${budget.currency}).`}
                                             onConfirm={() =>
                                                 handleDelete(budget.id)
                                             }
@@ -174,24 +181,36 @@ export default function BudgetsPage() {
                         <p>Failed to load summary.</p>
                     ) : (
                         <div className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-3">
-                                <div className="border rounded-md p-4">
-                                    <p className="font-medium">Total Budget</p>
-                                    <p>{budgetSummary.totalBudget}</p>
+                            {!budgetSummary.totalsByCurrency.length ? (
+                                <p>No summary totals found for this month.</p>
+                            ) : (
+                                <div className="grid gap-4 md:grid-cols-3">
+                                    {budgetSummary.totalsByCurrency.map(
+                                        (total) => (
+                                            <div
+                                                key={total.currency}
+                                                className="border rounded-md p-4"
+                                            >
+                                                <p className="font-medium">
+                                                    {total.currency}
+                                                </p>
+                                                <p className="text-sm">
+                                                    Total Budget:{" "}
+                                                    {total.totalBudget}
+                                                </p>
+                                                <p className="text-sm">
+                                                    Total Spent:{" "}
+                                                    {total.totalSpent}
+                                                </p>
+                                                <p className="text-sm">
+                                                    Total Remaining:{" "}
+                                                    {total.totalRemaining}
+                                                </p>
+                                            </div>
+                                        ),
+                                    )}
                                 </div>
-
-                                <div className="border rounded-md p-4">
-                                    <p className="font-medium">Total Spent</p>
-                                    <p>{budgetSummary.totalSpent}</p>
-                                </div>
-
-                                <div className="border rounded-md p-4">
-                                    <p className="font-medium">
-                                        Total Remaining
-                                    </p>
-                                    <p>{budgetSummary.totalRemaining}</p>
-                                </div>
-                            </div>
+                            )}
 
                             {!budgetSummary.items.length ? (
                                 <p>No summary items found for this month.</p>
@@ -206,14 +225,17 @@ export default function BudgetsPage() {
                                                 {item.categoryName}
                                             </p>
                                             <p className="text-sm">
-                                                Budget: {item.budgetAmount}
+                                                Budget: {item.budgetAmount}{" "}
+                                                {item.currency}
                                             </p>
                                             <p className="text-sm">
-                                                Spent: {item.spentAmount}
+                                                Spent: {item.spentAmount}{" "}
+                                                {item.currency}
                                             </p>
                                             <p className="text-sm">
                                                 Remaining:{" "}
-                                                {item.remainingAmount}
+                                                {item.remainingAmount}{" "}
+                                                {item.currency}
                                             </p>
                                             <p className="text-sm">
                                                 Used: {item.percentageUsed}%
