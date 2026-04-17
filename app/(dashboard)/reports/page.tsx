@@ -37,38 +37,59 @@ export default function ReportsPage() {
         data: monthlySummary,
         isLoading: isMonthlySummaryLoading,
         isError: isMonthlySummaryError,
-    } = useGetMonthlySummaryQuery(month);
+    } = useGetMonthlySummaryQuery(month, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
 
     const {
         data: categoryBreakdown,
         isLoading: isCategoryBreakdownLoading,
         isError: isCategoryBreakdownError,
-    } = useGetCategoryBreakdownQuery(month);
+    } = useGetCategoryBreakdownQuery(month, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
 
     const {
         data: topExpenses,
         isLoading: isTopExpensesLoading,
         isError: isTopExpensesError,
-    } = useGetTopExpensesQuery({
-        month,
-        limit: Number(topExpenseLimit),
-    });
+    } = useGetTopExpensesQuery(
+        {
+            month,
+            limit: Number(topExpenseLimit),
+        },
+        {
+            refetchOnFocus: true,
+            refetchOnReconnect: true,
+        },
+    );
 
     const {
         data: cashFlow,
         isLoading: isCashFlowLoading,
         isError: isCashFlowError,
-    } = useGetCashFlowQuery({
-        from: fromDate,
-        to: toDate,
-        groupBy,
-    });
+    } = useGetCashFlowQuery(
+        {
+            from: fromDate,
+            to: toDate,
+            groupBy,
+        },
+        {
+            refetchOnFocus: true,
+            refetchOnReconnect: true,
+        },
+    );
 
     const {
         data: accountSummary,
         isLoading: isAccountSummaryLoading,
         isError: isAccountSummaryError,
-    } = useGetAccountSummaryQuery();
+    } = useGetAccountSummaryQuery(undefined, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
 
     return (
         <div className="space-y-6">
@@ -114,7 +135,6 @@ export default function ReportsPage() {
                             className="w-full rounded-md border px-3 py-2"
                         >
                             <option value="DAY">DAY</option>
-                            <option value="WEEK">WEEK</option>
                             <option value="MONTH">MONTH</option>
                         </select>
                     </div>
@@ -166,7 +186,15 @@ export default function ReportsPage() {
 
                         <div className="border rounded-md p-4">
                             <p className="font-medium">Net Balance</p>
-                            <p>{monthlySummary.netBalance}</p>
+                            <p
+                                className={
+                                    monthlySummary.netBalance < 0
+                                        ? "text-red-600"
+                                        : "text-green-600"
+                                }
+                            >
+                                {monthlySummary.netBalance}
+                            </p>
                         </div>
                     </div>
                 )}
@@ -242,23 +270,42 @@ export default function ReportsPage() {
                     <p>Loading cash flow...</p>
                 ) : isCashFlowError || !cashFlow ? (
                     <p>Failed to load cash flow.</p>
-                ) : !cashFlow.items.length ? (
+                ) : !cashFlow.groups.length ? (
                     <p>No cash flow data found.</p>
                 ) : (
                     <div className="space-y-3">
-                        {cashFlow.items.map((item) => (
-                            <div
-                                key={item.period}
-                                className="border rounded-md p-4"
-                            >
-                                <p className="font-medium">
-                                    Period: {item.period}
-                                </p>
-                                <p className="text-sm">Income: {item.income}</p>
-                                <p className="text-sm">
-                                    Expense: {item.expense}
-                                </p>
-                                <p className="text-sm">Net: {item.net}</p>
+                        {cashFlow.groups.map((group) => (
+                            <div key={group.currency} className="space-y-3">
+                                <h4 className="font-semibold">
+                                    {group.currency}
+                                </h4>
+
+                                {group.items.map((item) => (
+                                    <div
+                                        key={item.period}
+                                        className="border rounded-md p-4"
+                                    >
+                                        <p className="font-medium">
+                                            Period: {item.period}
+                                        </p>
+
+                                        <p className="text-sm">
+                                            Income: {item.income}{" "}
+                                            {group.currency}
+                                        </p>
+
+                                        <p className="text-sm">
+                                            Expense: {item.expense}{" "}
+                                            {group.currency}
+                                        </p>
+
+                                        <p
+                                            className={`text-sm ${item.net < 0 ? "text-red-600" : "text-green-600"}`}
+                                        >
+                                            Net: {item.net} {group.currency}
+                                        </p>
+                                    </div>
+                                ))}
                             </div>
                         ))}
                     </div>
@@ -273,40 +320,71 @@ export default function ReportsPage() {
                 ) : isAccountSummaryError || !accountSummary ? (
                     <p>Failed to load account summary.</p>
                 ) : (
-                    <div className="space-y-4">
-                        <div className="border rounded-md p-4">
-                            <p className="font-medium">Total Current Balance</p>
-                            <p>{accountSummary.totalCurrentBalance}</p>
-                        </div>
-
-                        {!accountSummary.items.length ? (
-                            <p>No account summary items found.</p>
+                    <div className="space-y-4 border rounded-md p-4">
+                        {isAccountSummaryLoading ? (
+                            <p>Loading account summary...</p>
+                        ) : isAccountSummaryError || !accountSummary ? (
+                            <p>Failed to load account summary.</p>
                         ) : (
-                            <div className="space-y-3">
-                                {accountSummary.items.map((item) => (
-                                    <div
-                                        key={item.accountId}
-                                        className="border rounded-md p-4"
-                                    >
-                                        <p className="font-medium">
-                                            {item.accountName}
-                                        </p>
-                                        <p className="text-sm">
-                                            Type: {item.accountType}
-                                        </p>
-                                        <p className="text-sm">
-                                            Currency: {item.currency}
-                                        </p>
-                                        <p className="text-sm">
-                                            Initial Balance:{" "}
-                                            {item.initialBalance}
-                                        </p>
-                                        <p className="text-sm">
-                                            Current Balance:{" "}
-                                            {item.currentBalance}
-                                        </p>
+                            <div className="space-y-4">
+                                <div className="space-y-3">
+                                    <p className="font-medium">
+                                        Total Balance by Currency
+                                    </p>
+
+                                    {!accountSummary.totalsByCurrency.length ? (
+                                        <p>No totals found.</p>
+                                    ) : (
+                                        <div className="grid gap-3 md:grid-cols-3">
+                                            {accountSummary.totalsByCurrency.map(
+                                                (total) => (
+                                                    <div
+                                                        key={total.currency}
+                                                        className="border rounded-md p-4"
+                                                    >
+                                                        <p className="font-medium">
+                                                            {total.currency}
+                                                        </p>
+                                                        <p>
+                                                            {total.totalBalance}
+                                                        </p>
+                                                    </div>
+                                                ),
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {!accountSummary.items.length ? (
+                                    <p>No account summary items found.</p>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {accountSummary.items.map((item) => (
+                                            <div
+                                                key={item.accountId}
+                                                className="border rounded-md p-4"
+                                            >
+                                                <p className="font-medium">
+                                                    {item.accountName}
+                                                </p>
+                                                <p className="text-sm">
+                                                    Type: {item.accountType}
+                                                </p>
+                                                <p className="text-sm">
+                                                    Currency: {item.currency}
+                                                </p>
+                                                <p className="text-sm">
+                                                    Initial Balance:{" "}
+                                                    {item.initialBalance}
+                                                </p>
+                                                <p className="text-sm">
+                                                    Current Balance:{" "}
+                                                    {item.currentBalance}
+                                                </p>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+                                )}
                             </div>
                         )}
                     </div>

@@ -29,14 +29,24 @@ export default function BudgetsPage() {
     );
     const [summaryMonth, setSummaryMonth] = useState(getCurrentSummaryMonth());
 
-    const { data: budgets, isLoading, isError } = useGetBudgetsQuery();
+    const {
+        data: budgets,
+        isLoading,
+        isError,
+    } = useGetBudgetsQuery(undefined, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
     const [deleteBudget, { isLoading: isDeleting }] = useDeleteBudgetMutation();
 
     const {
         data: budgetSummary,
         isLoading: isSummaryLoading,
         isError: isSummaryError,
-    } = useGetBudgetSummaryQuery(summaryMonth);
+    } = useGetBudgetSummaryQuery(summaryMonth, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
 
     const sortedBudgets = useMemo(() => {
         return [...(budgets ?? [])].sort((a, b) => {

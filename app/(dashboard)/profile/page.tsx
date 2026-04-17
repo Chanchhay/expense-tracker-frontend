@@ -5,7 +5,14 @@ import { PageContainer } from "@/components/shared/page-container";
 import { useGetCurrentUserQuery } from "@/features/auth/auth-api";
 
 export default function ProfilePage() {
-    const { data: user, isLoading, isError } = useGetCurrentUserQuery();
+    const {
+        data: user,
+        isLoading,
+        isError,
+    } = useGetCurrentUserQuery(undefined, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
 
     if (isLoading) {
         return <div>Loading profile...</div>;

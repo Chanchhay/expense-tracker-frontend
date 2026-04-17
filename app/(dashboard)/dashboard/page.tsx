@@ -5,7 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContainer } from "@/components/shared/page-container";
 
 export default function DashboardPage() {
-    const { data, isLoading, isError } = useGetDashboardQuery();
+    const { data, isLoading, isError } = useGetDashboardQuery(undefined, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
 
     if (isLoading) {
         return <div className="p-6">Loading dashboard...</div>;
@@ -21,28 +24,56 @@ export default function DashboardPage() {
             description="Overview of your finances"
         >
             <div className="space-y-6">
-                <div className="grid gap-4 md:grid-cols-3">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Total Income</CardTitle>
-                        </CardHeader>
-                        <CardContent>{data.totalIncome}</CardContent>
-                    </Card>
+                {!data.totalsByCurrency.length ? (
+                    <div className="grid gap-4 md:grid-cols-3">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>No Balance Data</CardTitle>
+                            </CardHeader>
+                            <CardContent>No transactions found.</CardContent>
+                        </Card>
+                    </div>
+                ) : (
+                    <div className="grid gap-4 md:grid-cols-3">
+                        {data.totalsByCurrency.map((total) => (
+                            <Card key={total.currency}>
+                                <CardHeader>
+                                    <CardTitle>{total.currency}</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">
+                                            Total Income
+                                        </p>
+                                        <p>{total.totalIncome}</p>
+                                    </div>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Total Expense</CardTitle>
-                        </CardHeader>
-                        <CardContent>{data.totalExpense}</CardContent>
-                    </Card>
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">
+                                            Total Expense
+                                        </p>
+                                        <p>{total.totalExpense}</p>
+                                    </div>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Current Balance</CardTitle>
-                        </CardHeader>
-                        <CardContent>{data.currentBalance}</CardContent>
-                    </Card>
-                </div>
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">
+                                            Net Cash Flow
+                                        </p>
+                                        <p
+                                            className={
+                                                total.currentBalance < 0
+                                                    ? "text-red-600"
+                                                    : "text-green-600"
+                                            }
+                                        >
+                                            {total.currentBalance}
+                                        </p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                )}
 
                 <Card>
                     <CardHeader>

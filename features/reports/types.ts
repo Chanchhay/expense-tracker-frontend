@@ -25,13 +25,6 @@ export type CashFlowItemResponse = {
     net: number;
 };
 
-export type CashFlowResponse = {
-    from: string;
-    to: string;
-    groupBy: string;
-    items: CashFlowItemResponse[];
-};
-
 export type TopExpenseItemResponse = {
     transactionId: string;
     accountId: string;
@@ -59,7 +52,24 @@ export type AccountSummaryItemResponse = {
     currentBalance: number;
 };
 
+export type CurrencyBalanceTotalResponse = {
+    currency: string;
+    totalBalance: number;
+};
+
 export type AccountSummaryResponse = {
-    totalCurrentBalance: number;
+    totalsByCurrency: CurrencyBalanceTotalResponse[];
     items: AccountSummaryItemResponse[];
+};
+
+export type CashFlowCurrencyGroupResponse = {
+    currency: string;
+    items: CashFlowItemResponse[];
+};
+
+export type CashFlowResponse = {
+    from: string;
+    to: string;
+    groupBy: string;
+    groups: CashFlowCurrencyGroupResponse[];
 };

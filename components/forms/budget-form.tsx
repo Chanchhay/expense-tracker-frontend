@@ -17,6 +17,7 @@ import { getErrorMessage } from "@/lib/get-error-message";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { supportedCurrencies } from "@/features/accounts/types";
 
 type Props = {
     budget?: BudgetResponse | null;
@@ -46,6 +47,7 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
         defaultValues: {
             categoryId: "",
             amount: "",
+            currency: "USD",
             month: getCurrentMonth(),
             year: getCurrentYear(),
         },
@@ -55,6 +57,7 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
         form.reset({
             categoryId: budget ? String(budget.categoryId) : "",
             amount: budget ? String(budget.amount) : "",
+            currency: budget ? budget.currency : "USD",
             month: budget ? String(budget.month) : getCurrentMonth(),
             year: budget ? String(budget.year) : getCurrentYear(),
         });
@@ -65,6 +68,7 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
             const payload = {
                 categoryId: Number(values.categoryId),
                 amount: Number(values.amount),
+                currency: values.currency,
                 month: Number(values.month),
                 year: Number(values.year),
             };
@@ -78,9 +82,11 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
             } else {
                 await createBudget(payload).unwrap();
                 toast.success("Budget created successfully");
+
                 form.reset({
                     categoryId: "",
                     amount: "",
+                    currency: "USD",
                     month: getCurrentMonth(),
                     year: getCurrentYear(),
                 });
@@ -96,6 +102,7 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
         form.reset({
             categoryId: budget ? String(budget.categoryId) : "",
             amount: budget ? String(budget.amount) : "",
+            currency: budget ? budget.currency : "USD",
             month: budget ? String(budget.month) : getCurrentMonth(),
             year: budget ? String(budget.year) : getCurrentYear(),
         });
@@ -176,6 +183,35 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
 
                 <Controller
                     control={form.control}
+                    name="currency"
+                    render={({ field, fieldState }) => (
+                        <Field
+                            className="col-span-12 md:col-span-4 flex flex-col gap-2"
+                            data-invalid={fieldState.invalid}
+                        >
+                            <FieldLabel>Currency</FieldLabel>
+                            <select
+                                {...field}
+                                className="w-full rounded-md border px-3 py-2"
+                            >
+                                {supportedCurrencies.map((currency) => (
+                                    <option
+                                        key={currency.code}
+                                        value={currency.code}
+                                    >
+                                        {currency.label}
+                                    </option>
+                                ))}
+                            </select>
+                            {fieldState.invalid && (
+                                <FieldError errors={[fieldState.error]} />
+                            )}
+                        </Field>
+                    )}
+                />
+
+                <Controller
+                    control={form.control}
                     name="month"
                     render={({ field, fieldState }) => (
                         <Field
@@ -209,7 +245,7 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
                             <FieldLabel>Year</FieldLabel>
                             <Input
                                 type="number"
-                                min="2000"
+                                min="2026"
                                 max="3000"
                                 placeholder="Year"
                                 value={field.value ?? ""}

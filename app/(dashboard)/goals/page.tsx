@@ -19,7 +19,14 @@ import DeleteConfirmDialog from "@/components/shared/delete-confirm-dialog";
 import Image from "next/image";
 
 export default function GoalsPage() {
-    const { data: goals, isLoading, isError } = useGetGoalsQuery();
+    const {
+        data: goals,
+        isLoading,
+        isError,
+    } = useGetGoalsQuery(undefined, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
     const [deleteGoal, { isLoading: isDeleting }] = useDeleteGoalMutation();
 
     const [editingGoal, setEditingGoal] = useState<SavingsGoalResponse | null>(

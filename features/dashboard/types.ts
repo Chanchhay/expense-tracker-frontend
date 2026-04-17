@@ -17,9 +17,14 @@ export type DashboardTransaction = {
     }[];
 };
 
-export type DashboardResponse = {
+export type DashboardCurrencyTotal = {
+    currency: string;
     totalIncome: number;
     totalExpense: number;
     currentBalance: number;
+};
+
+export type DashboardResponse = {
+    totalsByCurrency: DashboardCurrencyTotal[];
     recentTransactions: DashboardTransaction[];
 };

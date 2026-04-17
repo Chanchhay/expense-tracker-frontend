@@ -36,7 +36,10 @@ export default function TransactionsPage() {
         data: transactions,
         isLoading,
         isError,
-    } = useGetTransactionsQuery(queryParams);
+    } = useGetTransactionsQuery(queryParams, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
 
     const [deleteTransaction, { isLoading: isDeleting }] =
         useDeleteTransactionMutation();

@@ -22,9 +22,13 @@ export default function AdminUsersPage() {
 
     const {
         data: currentUser,
-        isLoading: isCurrentUserLoading,
-        isError: isCurrentUserError,
-    } = useGetCurrentUserQuery();
+        isLoading,
+        isFetching,
+        isError,
+    } = useGetCurrentUserQuery(undefined, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
 
     const {
         data: users,
@@ -43,17 +47,17 @@ export default function AdminUsersPage() {
     const [selectedRoles, setSelectedRoles] = useState<RoleState>({});
 
     useEffect(() => {
-        if (!isCurrentUserLoading) {
-            if (isCurrentUserError || !currentUser) {
-                router.replace("/login");
-                return;
-            }
+        if (isLoading || isFetching) return;
 
-            if (currentUser.role !== "ADMIN") {
-                router.replace("/dashboard");
-            }
+        if (isError) {
+            router.replace("/login");
+            return;
         }
-    }, [currentUser, isCurrentUserLoading, isCurrentUserError, router]);
+
+        if (currentUser && currentUser.role !== "ADMIN") {
+            router.replace("/dashboard");
+        }
+    }, [currentUser, isLoading, isFetching, isError, router]);
 
     useEffect(() => {
         if (users) {
@@ -104,7 +108,7 @@ export default function AdminUsersPage() {
         }
     };
 
-    if (isCurrentUserLoading) {
+    if (isLoading) {
         return <div className="p-6">Loading...</div>;
     }
 

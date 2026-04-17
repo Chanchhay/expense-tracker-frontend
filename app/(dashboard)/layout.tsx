@@ -14,20 +14,33 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const router = useRouter();
-    const { data, isLoading, isError } = useGetCurrentUserQuery();
+
+    const { data, isLoading, isFetching, isError } = useGetCurrentUserQuery(
+        undefined,
+        {
+            refetchOnFocus: true,
+            refetchOnReconnect: true,
+        },
+    );
 
     useEffect(() => {
-        if (!isLoading && (isError || !data)) {
+        if (isLoading || isFetching) return;
+
+        if (isError) {
             router.replace("/login");
         }
-    }, [isLoading, isError, data, router]);
+    }, [isLoading, isFetching, isError, router]);
 
-    if (isLoading) {
+    if (isLoading || isFetching) {
         return <div className="p-6">Loading...</div>;
     }
 
-    if (!data) {
+    if (isError) {
         return null;
+    }
+
+    if (!data) {
+        return <div className="p-6">Loading user...</div>;
     }
 
     return (

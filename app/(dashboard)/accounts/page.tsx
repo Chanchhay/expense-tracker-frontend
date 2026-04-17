@@ -15,7 +15,10 @@ import { PageContainer } from "@/components/shared/page-container";
 import DeleteConfirmDialog from "@/components/shared/delete-confirm-dialog";
 
 export default function AccountsPage() {
-    const { data: accounts, isLoading, isError } = useGetAccountsQuery();
+    const { data: accounts, isLoading, isError } = useGetAccountsQuery(undefined, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
     const [deleteAccount, { isLoading: isDeleting }] =
         useDeleteAccountMutation();
     const [editingAccount, setEditingAccount] =

@@ -14,7 +14,11 @@ import {
     useCreateAccountMutation,
     useUpdateAccountMutation,
 } from "@/features/accounts/accounts-api";
-import type { AccountResponse, AccountType } from "@/features/accounts/types";
+import {
+    supportedCurrencies,
+    type AccountResponse,
+    type AccountType,
+} from "@/features/accounts/types";
 import { getErrorMessage } from "@/lib/get-error-message";
 
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -169,14 +173,19 @@ export default function AccountForm({ account, onSuccess }: Props) {
                             data-invalid={fieldState.invalid}
                         >
                             <FieldLabel>Currency</FieldLabel>
-                            <Input
-                                placeholder="USD"
-                                type="text"
+                            <select
                                 {...field}
-                                onChange={(e) =>
-                                    field.onChange(e.target.value.toUpperCase())
-                                }
-                            />
+                                className="w-full rounded-md border px-3 py-2"
+                            >
+                                {supportedCurrencies.map((currency) => (
+                                    <option
+                                        key={currency.code}
+                                        value={currency.code}
+                                    >
+                                        {currency.label}
+                                    </option>
+                                ))}
+                            </select>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]} />
                             )}
