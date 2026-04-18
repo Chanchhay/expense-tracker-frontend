@@ -1,8 +1,11 @@
 export type MonthlySummaryResponse = {
     month: string;
-    totalIncome: number;
-    totalExpense: number;
-    netBalance: number;
+    groups: {
+        currency: string;
+        totalIncome: number;
+        totalExpense: number;
+        netBalance: number;
+    }[];
 };
 
 export type CategoryBreakdownItemResponse = {
@@ -14,8 +17,16 @@ export type CategoryBreakdownItemResponse = {
 
 export type CategoryBreakdownResponse = {
     month: string;
-    totalExpense: number;
-    items: CategoryBreakdownItemResponse[];
+    groups: {
+        currency: string;
+        totalExpense: number;
+        items: {
+            categoryId: number;
+            categoryName: string;
+            amount: number;
+            percentage: number;
+        }[];
+    }[];
 };
 
 export type CashFlowItemResponse = {

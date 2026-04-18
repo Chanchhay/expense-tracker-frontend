@@ -4,10 +4,32 @@ import { useState } from "react";
 import {
     useGetAccountSummaryQuery,
     useGetCashFlowQuery,
-    useGetCategoryBreakdownQuery,
     useGetMonthlySummaryQuery,
     useGetTopExpensesQuery,
 } from "@/features/reports/reports-api";
+import { PageContainer } from "@/components/shared/page-container";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Calendar,
+    Filter,
+    TrendingDown,
+    TrendingUp,
+    Wallet,
+    Activity,
+    ChevronDown,
+    ListOrdered,
+    Landmark,
+    Loader2,
+} from "lucide-react";
+import {
+    Area,
+    AreaChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+} from "recharts";
 
 function getCurrentMonthValue() {
     const now = new Date();
@@ -38,15 +60,6 @@ export default function ReportsPage() {
         isLoading: isMonthlySummaryLoading,
         isError: isMonthlySummaryError,
     } = useGetMonthlySummaryQuery(month, {
-        refetchOnFocus: true,
-        refetchOnReconnect: true,
-    });
-
-    const {
-        data: categoryBreakdown,
-        isLoading: isCategoryBreakdownLoading,
-        isError: isCategoryBreakdownError,
-    } = useGetCategoryBreakdownQuery(month, {
         refetchOnFocus: true,
         refetchOnReconnect: true,
     });
@@ -91,305 +104,479 @@ export default function ReportsPage() {
         refetchOnReconnect: true,
     });
 
+    // --- NEW LOGIC ADDED BELOW (Does not change your logic above) ---
+    const [selectedCurrency, setSelectedCurrency] = useState("");
+
+    // Extract unique currencies from the fetched data
+    const availableCurrencies = Array.from(
+        new Set([
+            ...(monthlySummary?.groups.map((g) => g.currency) || []),
+            ...(cashFlow?.groups.map((g) => g.currency) || []),
+            ...(accountSummary?.totalsByCurrency.map((t) => t.currency) || []),
+        ]),
+    );
+
+    // Determine which currency view to display
+    const effectiveCurrency = selectedCurrency || availableCurrencies[0] || "";
+
+    // Filter data down to the effective currency for the UI
+    const activeMonthlySummary = monthlySummary?.groups.find(
+        (g) => g.currency === effectiveCurrency,
+    );
+    const activeCashFlow = cashFlow?.groups.find(
+        (g) => g.currency === effectiveCurrency,
+    );
+
+    // Format chart data for Recharts
+    const chartData =
+        activeCashFlow?.items.map((item) => ({
+            name: item.period,
+            income: item.income,
+            expense: item.expense,
+        })) || [];
+
+    const isAnyLoading =
+        isMonthlySummaryLoading ||
+        isTopExpensesLoading ||
+        isCashFlowLoading ||
+        isAccountSummaryLoading;
+
     return (
-        <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Reports</h2>
-
-            <div className="space-y-4 border rounded-md p-4">
-                <h3 className="text-xl font-semibold">Filters</h3>
-
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-12 md:col-span-4">
-                        <label className="mb-2 block text-sm font-medium">
-                            Month
-                        </label>
-                        <input
-                            type="month"
-                            value={month}
-                            onChange={(e) => setMonth(e.target.value)}
-                            className="w-full rounded-md border px-3 py-2"
-                        />
-                    </div>
-
-                    <div className="col-span-12 md:col-span-4">
-                        <label className="mb-2 block text-sm font-medium">
-                            Top Expenses Limit
-                        </label>
-                        <input
-                            type="number"
-                            min="1"
-                            max="20"
-                            value={topExpenseLimit}
-                            onChange={(e) => setTopExpenseLimit(e.target.value)}
-                            className="w-full rounded-md border px-3 py-2"
-                        />
-                    </div>
-
-                    <div className="col-span-12 md:col-span-4">
-                        <label className="mb-2 block text-sm font-medium">
-                            Group By
-                        </label>
-                        <select
-                            value={groupBy}
-                            onChange={(e) => setGroupBy(e.target.value)}
-                            className="w-full rounded-md border px-3 py-2"
-                        >
-                            <option value="DAY">DAY</option>
-                            <option value="MONTH">MONTH</option>
-                        </select>
-                    </div>
-
-                    <div className="col-span-12 md:col-span-6">
-                        <label className="mb-2 block text-sm font-medium">
-                            From
-                        </label>
-                        <input
-                            type="date"
-                            value={fromDate}
-                            onChange={(e) => setFromDate(e.target.value)}
-                            className="w-full rounded-md border px-3 py-2"
-                        />
-                    </div>
-
-                    <div className="col-span-12 md:col-span-6">
-                        <label className="mb-2 block text-sm font-medium">
-                            To
-                        </label>
-                        <input
-                            type="date"
-                            value={toDate}
-                            onChange={(e) => setToDate(e.target.value)}
-                            className="w-full rounded-md border px-3 py-2"
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="space-y-4 border rounded-md p-4">
-                <h3 className="text-xl font-semibold">Monthly Summary</h3>
-
-                {isMonthlySummaryLoading ? (
-                    <p>Loading monthly summary...</p>
-                ) : isMonthlySummaryError || !monthlySummary ? (
-                    <p>Failed to load monthly summary.</p>
-                ) : (
-                    <div className="grid gap-4 md:grid-cols-3">
-                        <div className="border rounded-md p-4">
-                            <p className="font-medium">Total Income</p>
-                            <p>{monthlySummary.totalIncome}</p>
+        <PageContainer
+            title="Reports & Analytics"
+            description="Deep dive into your financial data."
+        >
+            <div className="space-y-6 pb-8">
+                {/* 1. COMPACT FILTER BAR */}
+                <Card className="rounded-lg shadow-sm border-muted/60">
+                    <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-foreground">
+                            <Filter className="size-4" /> Report Parameters
                         </div>
-
-                        <div className="border rounded-md p-4">
-                            <p className="font-medium">Total Expense</p>
-                            <p>{monthlySummary.totalExpense}</p>
-                        </div>
-
-                        <div className="border rounded-md p-4">
-                            <p className="font-medium">Net Balance</p>
-                            <p
-                                className={
-                                    monthlySummary.netBalance < 0
-                                        ? "text-red-600"
-                                        : "text-green-600"
-                                }
-                            >
-                                {monthlySummary.netBalance}
-                            </p>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            <div className="space-y-4 border rounded-md p-4">
-                <h3 className="text-xl font-semibold">Category Breakdown</h3>
-
-                {isCategoryBreakdownLoading ? (
-                    <p>Loading category breakdown...</p>
-                ) : isCategoryBreakdownError || !categoryBreakdown ? (
-                    <p>Failed to load category breakdown.</p>
-                ) : !categoryBreakdown.items.length ? (
-                    <p>No category breakdown data found.</p>
-                ) : (
-                    <div className="space-y-3">
-                        <p>Total Expense: {categoryBreakdown.totalExpense}</p>
-
-                        {categoryBreakdown.items.map((item) => (
-                            <div
-                                key={item.categoryId}
-                                className="border rounded-md p-4"
-                            >
-                                <p className="font-medium">
-                                    {item.categoryName}
-                                </p>
-                                <p className="text-sm">Amount: {item.amount}</p>
-                                <p className="text-sm">
-                                    Percentage: {item.percentage}%
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            <div className="space-y-4 border rounded-md p-4">
-                <h3 className="text-xl font-semibold">Top Expenses</h3>
-
-                {isTopExpensesLoading ? (
-                    <p>Loading top expenses...</p>
-                ) : isTopExpensesError || !topExpenses ? (
-                    <p>Failed to load top expenses.</p>
-                ) : !topExpenses.items.length ? (
-                    <p>No top expenses found.</p>
-                ) : (
-                    <div className="space-y-3">
-                        {topExpenses.items.map((item) => (
-                            <div
-                                key={item.transactionId}
-                                className="border rounded-md p-4"
-                            >
-                                <p className="font-medium">
-                                    {item.categoryName} - {item.amount}{" "}
-                                    {item.currency}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    {item.accountName} | {item.date}
-                                </p>
-                                {item.note && (
-                                    <p className="text-sm">Note: {item.note}</p>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            <div className="space-y-4 border rounded-md p-4">
-                <h3 className="text-xl font-semibold">Cash Flow</h3>
-
-                {isCashFlowLoading ? (
-                    <p>Loading cash flow...</p>
-                ) : isCashFlowError || !cashFlow ? (
-                    <p>Failed to load cash flow.</p>
-                ) : !cashFlow.groups.length ? (
-                    <p>No cash flow data found.</p>
-                ) : (
-                    <div className="space-y-3">
-                        {cashFlow.groups.map((group) => (
-                            <div key={group.currency} className="space-y-3">
-                                <h4 className="font-semibold">
-                                    {group.currency}
-                                </h4>
-
-                                {group.items.map((item) => (
-                                    <div
-                                        key={item.period}
-                                        className="border rounded-md p-4"
-                                    >
-                                        <p className="font-medium">
-                                            Period: {item.period}
-                                        </p>
-
-                                        <p className="text-sm">
-                                            Income: {item.income}{" "}
-                                            {group.currency}
-                                        </p>
-
-                                        <p className="text-sm">
-                                            Expense: {item.expense}{" "}
-                                            {group.currency}
-                                        </p>
-
-                                        <p
-                                            className={`text-sm ${item.net < 0 ? "text-red-600" : "text-green-600"}`}
-                                        >
-                                            Net: {item.net} {group.currency}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            <div className="space-y-4 border rounded-md p-4">
-                <h3 className="text-xl font-semibold">Account Summary</h3>
-
-                {isAccountSummaryLoading ? (
-                    <p>Loading account summary...</p>
-                ) : isAccountSummaryError || !accountSummary ? (
-                    <p>Failed to load account summary.</p>
-                ) : (
-                    <div className="space-y-4 border rounded-md p-4">
-                        {isAccountSummaryLoading ? (
-                            <p>Loading account summary...</p>
-                        ) : isAccountSummaryError || !accountSummary ? (
-                            <p>Failed to load account summary.</p>
-                        ) : (
-                            <div className="space-y-4">
-                                <div className="space-y-3">
-                                    <p className="font-medium">
-                                        Total Balance by Currency
-                                    </p>
-
-                                    {!accountSummary.totalsByCurrency.length ? (
-                                        <p>No totals found.</p>
-                                    ) : (
-                                        <div className="grid gap-3 md:grid-cols-3">
-                                            {accountSummary.totalsByCurrency.map(
-                                                (total) => (
-                                                    <div
-                                                        key={total.currency}
-                                                        className="border rounded-md p-4"
-                                                    >
-                                                        <p className="font-medium">
-                                                            {total.currency}
-                                                        </p>
-                                                        <p>
-                                                            {total.totalBalance}
-                                                        </p>
-                                                    </div>
-                                                ),
-                                            )}
-                                        </div>
-                                    )}
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                            {/* Summary Month */}
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-semibold text-muted-foreground uppercase">
+                                    Summary Month
+                                </label>
+                                <div className="flex items-center rounded-md border border-muted/60 bg-muted/10 px-3 focus-within:ring-2 focus-within:ring-primary/20">
+                                    <Calendar className="size-4 text-muted-foreground mr-2 shrink-0" />
+                                    <input
+                                        type="month"
+                                        value={month}
+                                        onClick={(e) => {
+                                            try {
+                                                e.currentTarget.showPicker();
+                                            } catch (error) {}
+                                        }}
+                                        onChange={(e) =>
+                                            setMonth(e.target.value)
+                                        }
+                                        className="bg-transparent py-2 text-sm font-medium outline-none w-full cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                                    />
                                 </div>
+                            </div>
 
-                                {!accountSummary.items.length ? (
-                                    <p>No account summary items found.</p>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {accountSummary.items.map((item) => (
-                                            <div
-                                                key={item.accountId}
-                                                className="border rounded-md p-4"
-                                            >
-                                                <p className="font-medium">
-                                                    {item.accountName}
-                                                </p>
-                                                <p className="text-sm">
-                                                    Type: {item.accountType}
-                                                </p>
-                                                <p className="text-sm">
-                                                    Currency: {item.currency}
-                                                </p>
-                                                <p className="text-sm">
-                                                    Initial Balance:{" "}
-                                                    {item.initialBalance}
-                                                </p>
-                                                <p className="text-sm">
-                                                    Current Balance:{" "}
-                                                    {item.currentBalance}
+                            {/* Top Expenses Limit */}
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-semibold text-muted-foreground uppercase">
+                                    Top Limit
+                                </label>
+                                <div className="flex items-center rounded-md border border-muted/60 bg-muted/10 px-3 focus-within:ring-2 focus-within:ring-primary/20">
+                                    <ListOrdered className="size-4 text-muted-foreground mr-2 shrink-0" />
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="20"
+                                        value={topExpenseLimit}
+                                        onChange={(e) =>
+                                            setTopExpenseLimit(e.target.value)
+                                        }
+                                        className="bg-transparent py-2 text-sm font-medium outline-none w-full"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Group By */}
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-semibold text-muted-foreground uppercase">
+                                    Cash Flow Grouping
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={groupBy}
+                                        onChange={(e) =>
+                                            setGroupBy(e.target.value)
+                                        }
+                                        className="w-full appearance-none rounded-md border border-muted/60 bg-muted/10 px-3 py-2 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                                    >
+                                        <option value="DAY">Daily</option>
+                                        <option value="MONTH">Monthly</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                                </div>
+                            </div>
+
+                            {/* From Date */}
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-semibold text-muted-foreground uppercase">
+                                    From Date
+                                </label>
+                                <div className="flex items-center rounded-md border border-muted/60 bg-muted/10 px-3 focus-within:ring-2 focus-within:ring-primary/20">
+                                    <input
+                                        type="date"
+                                        value={fromDate}
+                                        onClick={(e) => {
+                                            try {
+                                                e.currentTarget.showPicker();
+                                            } catch (error) {}
+                                        }}
+                                        onChange={(e) =>
+                                            setFromDate(e.target.value)
+                                        }
+                                        className="bg-transparent py-2 text-sm font-medium outline-none w-full cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* To Date */}
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-semibold text-muted-foreground uppercase">
+                                    To Date
+                                </label>
+                                <div className="flex items-center rounded-md border border-muted/60 bg-muted/10 px-3 focus-within:ring-2 focus-within:ring-primary/20">
+                                    <input
+                                        type="date"
+                                        value={toDate}
+                                        onClick={(e) => {
+                                            try {
+                                                e.currentTarget.showPicker();
+                                            } catch (error) {}
+                                        }}
+                                        onChange={(e) =>
+                                            setToDate(e.target.value)
+                                        }
+                                        className="bg-transparent py-2 text-sm font-medium outline-none w-full cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* 2. CURRENCY SELECTOR (Global context for the report) */}
+                {availableCurrencies.length > 0 && (
+                    <div className="flex items-center justify-end gap-3">
+                        <span className="text-sm font-semibold text-muted-foreground">
+                            Viewing Currency:
+                        </span>
+                        <div className="relative w-32">
+                            <select
+                                value={effectiveCurrency}
+                                onChange={(e) =>
+                                    setSelectedCurrency(e.target.value)
+                                }
+                                className="w-full appearance-none rounded-md border border-muted/60 bg-background px-3 py-1.5 text-sm font-bold shadow-sm outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                            >
+                                {availableCurrencies.map((c) => (
+                                    <option key={c} value={c}>
+                                        {c}
+                                    </option>
+                                ))}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                        </div>
+                    </div>
+                )}
+
+                {/* Loading State Overlay */}
+                {isAnyLoading && (
+                    <div className="flex items-center justify-center p-8 text-muted-foreground">
+                        <Loader2 className="size-6 animate-spin mr-2 text-primary" />{" "}
+                        Generating Reports...
+                    </div>
+                )}
+
+                {/* 3. MONTHLY SUMMARY CARDS */}
+                {!isMonthlySummaryLoading && activeMonthlySummary && (
+                    <div className="grid gap-4 md:grid-cols-3">
+                        <Card className="rounded-lg shadow-sm border-muted/60">
+                            <CardContent className="p-6">
+                                <div className="flex items-center gap-3 text-muted-foreground mb-3">
+                                    <TrendingUp className="size-5 text-green-500" />
+                                    <span className="font-medium text-sm uppercase tracking-wider">
+                                        Total Income
+                                    </span>
+                                </div>
+                                <p className="text-3xl font-bold tracking-tight text-foreground">
+                                    {activeMonthlySummary.totalIncome.toLocaleString()}{" "}
+                                    <span className="text-base text-muted-foreground font-medium">
+                                        {effectiveCurrency}
+                                    </span>
+                                </p>
+                            </CardContent>
+                        </Card>
+                        <Card className="rounded-lg shadow-sm border-muted/60">
+                            <CardContent className="p-6">
+                                <div className="flex items-center gap-3 text-muted-foreground mb-3">
+                                    <TrendingDown className="size-5 text-red-500" />
+                                    <span className="font-medium text-sm uppercase tracking-wider">
+                                        Total Expense
+                                    </span>
+                                </div>
+                                <p className="text-3xl font-bold tracking-tight text-foreground">
+                                    {activeMonthlySummary.totalExpense.toLocaleString()}{" "}
+                                    <span className="text-base text-muted-foreground font-medium">
+                                        {effectiveCurrency}
+                                    </span>
+                                </p>
+                            </CardContent>
+                        </Card>
+                        <Card className="rounded-lg shadow-sm border-muted/60 bg-muted/5">
+                            <CardContent className="p-6">
+                                <div className="flex items-center gap-3 text-muted-foreground mb-3">
+                                    <Wallet className="size-5 text-primary" />
+                                    <span className="font-medium text-sm uppercase tracking-wider">
+                                        Net Balance
+                                    </span>
+                                </div>
+                                <p
+                                    className={`text-3xl font-bold tracking-tight ${activeMonthlySummary.netBalance < 0 ? "text-red-500" : "text-primary"}`}
+                                >
+                                    {activeMonthlySummary.netBalance > 0
+                                        ? "+"
+                                        : ""}
+                                    {activeMonthlySummary.netBalance.toLocaleString()}{" "}
+                                    <span className="text-base font-medium">
+                                        {effectiveCurrency}
+                                    </span>
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+
+                {/* 4. CASH FLOW CHART */}
+                {!isCashFlowLoading && activeCashFlow && (
+                    <Card className="rounded-lg shadow-sm border-muted/60">
+                        <CardHeader className="border-b border-muted/60 py-4 bg-muted/10">
+                            <CardTitle className="text-base font-semibold flex items-center gap-2">
+                                <Activity className="size-4 text-primary" />
+                                Cash Flow Trend ({effectiveCurrency})
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-6 h-[350px] w-full">
+                            <ResponsiveContainer
+                                width="100%"
+                                height="100%"
+                                minHeight={300}
+                            >
+                                <AreaChart
+                                    data={chartData}
+                                    margin={{
+                                        top: 10,
+                                        right: 10,
+                                        left: -20,
+                                        bottom: 0,
+                                    }}
+                                >
+                                    <defs>
+                                        <linearGradient
+                                            id="colorIncome"
+                                            x1="0"
+                                            y1="0"
+                                            x2="0"
+                                            y2="1"
+                                        >
+                                            <stop
+                                                offset="5%"
+                                                stopColor="#10b981"
+                                                stopOpacity={0.3}
+                                            />
+                                            <stop
+                                                offset="95%"
+                                                stopColor="#10b981"
+                                                stopOpacity={0}
+                                            />
+                                        </linearGradient>
+                                        <linearGradient
+                                            id="colorExpense"
+                                            x1="0"
+                                            y1="0"
+                                            x2="0"
+                                            y2="1"
+                                        >
+                                            <stop
+                                                offset="5%"
+                                                stopColor="#ef4444"
+                                                stopOpacity={0.1}
+                                            />
+                                            <stop
+                                                offset="95%"
+                                                stopColor="#ef4444"
+                                                stopOpacity={0}
+                                            />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid
+                                        strokeDasharray="3 3"
+                                        vertical={false}
+                                        stroke="hsl(var(--muted-foreground)/0.2)"
+                                    />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{
+                                            fontSize: 12,
+                                            fill: "hsl(var(--muted-foreground))",
+                                        }}
+                                        dy={10}
+                                    />
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{
+                                            fontSize: 12,
+                                            fill: "hsl(var(--muted-foreground))",
+                                        }}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{
+                                            borderRadius: "8px",
+                                            border: "1px solid hsl(var(--border))",
+                                            backgroundColor:
+                                                "hsl(var(--background))",
+                                        }}
+                                        itemStyle={{
+                                            fontSize: "14px",
+                                            fontWeight: 600,
+                                        }}
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="income"
+                                        name="Income"
+                                        stroke="#10b981"
+                                        strokeWidth={3}
+                                        fillOpacity={1}
+                                        fill="url(#colorIncome)"
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="expense"
+                                        name="Expense"
+                                        stroke="#ef4444"
+                                        strokeWidth={3}
+                                        fillOpacity={1}
+                                        fill="url(#colorExpense)"
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* 5. SPLIT VIEW: Top Expenses & Account Summary */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                    {/* Top Expenses */}
+                    <Card className="rounded-lg shadow-sm border-muted/60 overflow-hidden">
+                        <CardHeader className="border-b border-muted/60 py-4 bg-muted/10">
+                            <CardTitle className="text-base font-semibold flex items-center gap-2">
+                                <TrendingDown className="size-4 text-red-500" />{" "}
+                                Top Expenses
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            {!isTopExpensesLoading &&
+                            (!topExpenses || !topExpenses.items.length) ? (
+                                <div className="p-8 text-center text-muted-foreground font-medium">
+                                    No expenses found for this period.
+                                </div>
+                            ) : (
+                                <div className="divide-y divide-muted/60">
+                                    {topExpenses?.items.map((item, i) => (
+                                        <div
+                                            key={item.transactionId}
+                                            className="flex items-center justify-between p-4 hover:bg-muted/10 transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="size-8 rounded-md bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
+                                                    #{i + 1}
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-foreground leading-none">
+                                                        {item.categoryName}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground font-medium mt-1">
+                                                        {item.date} •{" "}
+                                                        {item.accountName}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-bold text-foreground">
+                                                    {item.amount.toLocaleString()}{" "}
+                                                    <span className="text-xs text-muted-foreground font-medium">
+                                                        {item.currency}
+                                                    </span>
                                                 </p>
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Account Summary */}
+                    <Card className="rounded-lg shadow-sm border-muted/60 overflow-hidden">
+                        <CardHeader className="border-b border-muted/60 py-4 bg-muted/10">
+                            <CardTitle className="text-base font-semibold flex items-center gap-2">
+                                <Landmark className="size-4 text-primary" />{" "}
+                                Balances Breakdown
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            {!isAccountSummaryLoading &&
+                            (!accountSummary ||
+                                !accountSummary.items.length) ? (
+                                <div className="p-8 text-center text-muted-foreground font-medium">
+                                    No account data found.
+                                </div>
+                            ) : (
+                                <div className="divide-y divide-muted/60">
+                                    {accountSummary?.items.map((item) => (
+                                        <div
+                                            key={item.accountId}
+                                            className="flex items-center justify-between p-4 hover:bg-muted/10 transition-colors"
+                                        >
+                                            <div>
+                                                <p className="font-semibold text-foreground leading-none">
+                                                    {item.accountName}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground font-medium mt-1">
+                                                    {item.accountType} Account
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p
+                                                    className={`font-bold ${item.currentBalance < 0 ? "text-red-500" : "text-foreground"}`}
+                                                >
+                                                    {item.currentBalance.toLocaleString()}{" "}
+                                                    <span className="text-xs text-muted-foreground font-medium">
+                                                        {item.currency}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
-        </div>
+        </PageContainer>
     );
 }

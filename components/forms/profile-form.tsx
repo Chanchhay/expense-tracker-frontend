@@ -18,15 +18,25 @@ import SingleImagePicker from "@/components/shared/single-image-picker";
 
 type Props = {
     user: UserResponse;
+    onSuccess?: () => void; // Added onSuccess to close the modal
 };
 
-export default function ProfileForm({ user }: Props) {
+export default function ProfileForm({ user, onSuccess }: Props) {
     const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
     const [profileFile, setProfileFile] = useState<File | null>(null);
     const [existingProfileUrl, setExistingProfileUrl] = useState<string | null>(
         user.profile ?? null,
     );
+
+    // Track previous ID to prevent cascading render effects (React state fix)
+    const [prevUserId, setPrevUserId] = useState<string | undefined>(user.id);
+
+    if (user.id !== prevUserId) {
+        setPrevUserId(user.id);
+        setExistingProfileUrl(user.profile ?? null);
+        setProfileFile(null);
+    }
 
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
@@ -58,82 +68,75 @@ export default function ProfileForm({ user }: Props) {
             toast.success("Profile updated successfully");
             setProfileFile(null);
             setExistingProfileUrl(profileUrl);
+
+            onSuccess?.(); // Close modal on success
         } catch (error: unknown) {
             toast.error(getErrorMessage(error));
         }
     };
 
-    const handleReset = () => {
-        form.reset({
-            name: user.name ?? "",
-        });
-        setExistingProfileUrl(user.profile ?? null);
-        setProfileFile(null);
-    };
-
     return (
-        <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            onReset={handleReset}
-            className="space-y-8 @container border p-4 rounded-md"
-        >
-            <div className="grid grid-cols-12 gap-4">
-                <div className="col-span-12">
-                    <p className="text-xl font-semibold">Update Profile</p>
-                    <p className="text-sm text-muted-foreground">
-                        Update your name and profile image
-                    </p>
-                </div>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <Controller
+                control={form.control}
+                name="name"
+                render={({ field, fieldState }) => (
+                    <Field
+                        className="flex flex-col gap-1.5"
+                        data-invalid={fieldState.invalid}
+                    >
+                        <FieldLabel className="text-sm font-semibold text-foreground">
+                            Display Name
+                        </FieldLabel>
+                        <Input
+                            type="text"
+                            placeholder="Enter your name"
+                            className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
+                            {...field}
+                        />
+                        {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                        )}
+                    </Field>
+                )}
+            />
 
-                <Controller
-                    control={form.control}
-                    name="name"
-                    render={({ field, fieldState }) => (
-                        <Field
-                            className="col-span-12 flex flex-col gap-2"
-                            data-invalid={fieldState.invalid}
-                        >
-                            <FieldLabel>Name</FieldLabel>
-                            <Input
-                                type="text"
-                                placeholder="Enter your name"
-                                {...field}
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[fieldState.error]} />
-                            )}
-                        </Field>
-                    )}
-                />
-
-                <div className="col-span-12 space-y-2">
-                    <FieldLabel>Profile Image</FieldLabel>
+            <div className="space-y-2">
+                <FieldLabel className="text-sm font-semibold text-foreground">
+                    Profile Avatar
+                </FieldLabel>
+                <div className="rounded-md border border-dashed border-muted-foreground/30 bg-muted/10 p-4">
                     <SingleImagePicker
                         file={profileFile}
                         previewUrl={existingProfileUrl}
                         onChange={(file) => {
                             setProfileFile(file);
-
                             if (!file && existingProfileUrl) {
                                 setExistingProfileUrl(null);
                             }
                         }}
                     />
                 </div>
+            </div>
 
-                <div className="col-span-12 grid grid-cols-2 gap-3">
-                    <Button type="reset" variant="outline" className="w-full">
-                        Reset
-                    </Button>
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-muted/60 mt-4">
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-md font-medium"
+                    disabled={isLoading}
+                    onClick={onSuccess}
+                >
+                    Cancel
+                </Button>
 
-                    <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? "Updating..." : "Update Profile"}
-                    </Button>
-                </div>
+                <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="rounded-md font-semibold shadow-sm"
+                >
+                    {isLoading ? "Saving..." : "Save Changes"}
+                </Button>
             </div>
         </form>
     );
