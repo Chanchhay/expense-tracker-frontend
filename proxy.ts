@@ -28,6 +28,14 @@ export function proxy(request: NextRequest) {
     const refreshToken = request.cookies.get("refresh_token")?.value;
     const hasSession = Boolean(refreshToken);
 
+    if (
+        pathname.startsWith("/_next") ||
+        pathname.includes("/api/") ||
+        pathname.includes("favicon.ico")
+    ) {
+        return NextResponse.next();
+    }
+
     if (isAuthRoute(pathname) && hasSession) {
         const url = request.nextUrl.clone();
         url.pathname = "/dashboard";

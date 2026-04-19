@@ -35,7 +35,14 @@ const baseQueryWithReauth: BaseQueryFn<
             api.dispatch(clearUser());
 
             if (typeof window !== "undefined") {
-                window.location.href = "/login";
+                const currentPath = window.location.pathname;
+                if (
+                    !currentPath.startsWith("/login") &&
+                    !currentPath.startsWith("/register") &&
+                    currentPath !== "/"
+                ) {
+                    window.location.href = "/login";
+                }
             }
         }
     }

@@ -339,7 +339,7 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                             data-invalid={fieldState.invalid}
                         >
                             <FieldLabel>Date</FieldLabel>
-                            <Input type="date" {...field} />
+                            <Input type="date" {...field} max={getToday()}/>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]} />
                             )}
