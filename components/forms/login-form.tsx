@@ -71,14 +71,15 @@ function LoginFormContent() {
     };
 
     const handleSocialAuth = (provider: "google" | "facebook") => {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+        // const backendUrl = process.env.NEXT_PUBLIC_API_URL;
 
-        if (!backendUrl) {
-            toast.error("Backend URL is missing");
-            return;
-        }
+        // if (!backendUrl) {
+        //     toast.error("Backend URL is missing");
+        //     return;
+        // }
 
-        window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
+        // window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
+        window.location.href = `/oauth2/authorization/${provider}`;
     };
 
     return (
