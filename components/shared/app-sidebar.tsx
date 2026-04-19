@@ -34,9 +34,11 @@ export function AppSidebar() {
             {/* BRANDING / LOGO AREA */}
             <SidebarHeader className="pt-6 pb-4 px-6">
                 <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-                        <Wallet className="size-5" />
-                    </div>
+                    <Link href="/">
+                        <div className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+                            <Wallet className="size-5" />
+                        </div>
+                    </Link>
                     <div className="flex flex-col">
                         <span className="font-bold text-lg tracking-tight">
                             Plutolio

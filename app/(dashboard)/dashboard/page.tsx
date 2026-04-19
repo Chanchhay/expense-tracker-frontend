@@ -257,7 +257,6 @@ export default function DashboardPage() {
                                 Expense Allocation
                             </CardTitle>
                         </CardHeader>
-                        {/* FIX: Replaced min-h with a strict h-[350px] and w-full */}
                         <CardContent className="h-[350px] w-full flex items-center justify-center pb-6">
                             {isCategoryBreakdownLoading ? (
                                 <p className="text-sm text-muted-foreground">
