@@ -53,14 +53,15 @@ export default function RegisterForm() {
     };
 
     const handleSocialAuth = (provider: "google" | "facebook") => {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+        // const backendUrl = process.env.NEXT_PUBLIC_API_URL;
 
-        if (!backendUrl) {
-            toast.error("Backend URL is missing");
-            return;
-        }
+        // if (!backendUrl) {
+        //     toast.error("Backend URL is missing");
+        //     return;
+        // }
 
-        window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
+        // window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
+        window.location.href = `/social-login/${provider}`;
     };
 
     return (
