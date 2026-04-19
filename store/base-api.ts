@@ -7,7 +7,7 @@ import type {
 import { clearUser } from "@/features/auth/auth-slice";
 
 const rawBaseQuery = fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL,
+    baseUrl: "",
     credentials: "include",
 });
 
