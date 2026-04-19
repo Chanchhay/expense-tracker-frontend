@@ -57,7 +57,14 @@ function LoginFormContent() {
         try {
             await login(values).unwrap();
             toast.success("Welcome back!");
-            router.push("/dashboard");
+
+            const nextUrl = searchParams.get("next");
+
+            if (nextUrl) {
+                router.push(nextUrl);
+            } else {
+                router.push("/dashboard");
+            }
         } catch (error: unknown) {
             toast.error(getErrorMessage(error));
         }
