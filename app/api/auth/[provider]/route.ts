@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { provider: string } },
+    { params }: { params: Promise<{ provider: string }> },
 ) {
+    const { provider } = await params;
+
     const isDev = process.env.NODE_ENV === "development";
     const backendUrl = isDev
         ? "http://localhost:8080"
@@ -13,7 +15,7 @@ export async function GET(
     const protocol = isDev ? "http" : "https";
 
     const response = await fetch(
-        `${backendUrl}/oauth2/authorization/${params.provider}`,
+        `${backendUrl}/oauth2/authorization/${provider}`,
         {
             redirect: "manual",
             headers: {
@@ -38,7 +40,7 @@ export async function GET(
         <html>
             <head>
                 <meta http-equiv="refresh" content="0;url=${location}">
-                <title>Redirecting to ${params.provider}...</title>
+                <title>Redirecting to ${provider}...</title>
             </head>
             <body style="background: #111; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif;">
                 <p>Connecting securely...</p>
