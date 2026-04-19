@@ -80,7 +80,7 @@ function LoginFormContent() {
 
         // window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
         // window.location.href = `/oauth2/authorization/${provider}`;
-        window.location.href = `/api/auth/${provider}`;
+        window.location.href = `/social-login/${provider}`;
     };
 
     return (
