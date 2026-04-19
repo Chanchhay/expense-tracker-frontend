@@ -1,27 +1,27 @@
 "use client";
 
 import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { ChevronDown } from "lucide-react";
 
-import {
-    goalStatusSchema,
-    type GoalStatusFormValues,
-} from "@/features/goals/schema";
+// Assuming you have an API mutation like this:
 import { useUpdateGoalStatusMutation } from "@/features/goals/goals-api";
-import type { GoalStatus, SavingsGoalResponse } from "@/features/goals/types";
+import type { SavingsGoalResponse } from "@/features/goals/types";
 import { getErrorMessage } from "@/lib/get-error-message";
 
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
+import { GoalStatusFormValues, goalStatusSchema } from "@/features/goals/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type Props = {
     goal: SavingsGoalResponse;
+    onSuccess?: () => void;
 };
 
-const statuses: GoalStatus[] = ["ACTIVE", "COMPLETED", "CANCELLED"];
+const statuses = ["ACTIVE", "PAUSED", "COMPLETED", "CANCELLED"];
 
-export default function GoalStatusForm({ goal }: Props) {
+export default function GoalStatusForm({ goal, onSuccess }: Props) {
     const [updateGoalStatus, { isLoading }] = useUpdateGoalStatusMutation();
 
     const form = useForm<GoalStatusFormValues>({
@@ -47,39 +47,49 @@ export default function GoalStatusForm({ goal }: Props) {
     };
 
     return (
-        <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 border p-4 rounded-md"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
             <Controller
                 control={form.control}
                 name="status"
-                render={({ field, fieldState }) => (
-                    <Field
-                        className="flex flex-col gap-2"
-                        data-invalid={fieldState.invalid}
-                    >
-                        <FieldLabel>Status</FieldLabel>
-                        <select
-                            {...field}
-                            className="w-full rounded-md border px-3 py-2"
-                        >
-                            {statuses.map((status) => (
-                                <option key={status} value={status}>
-                                    {status}
-                                </option>
-                            ))}
-                        </select>
-                        {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                        )}
+                render={({ field }) => (
+                    <Field className="flex flex-col gap-1.5">
+                        <FieldLabel className="text-sm font-semibold text-foreground">
+                            Current Status
+                        </FieldLabel>
+                        <div className="relative">
+                            <select
+                                {...field}
+                                className="w-full appearance-none rounded-md border border-muted/60 bg-background px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer font-medium"
+                            >
+                                {statuses.map((s) => (
+                                    <option key={s} value={s}>
+                                        {s}
+                                    </option>
+                                ))}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                        </div>
                     </Field>
                 )}
             />
 
-            <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Updating..." : "Update Status"}
-            </Button>
+            <div className="flex justify-end gap-2 pt-4">
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onSuccess}
+                    className="rounded-md"
+                >
+                    Cancel
+                </Button>
+                <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="rounded-md"
+                >
+                    {isLoading ? "Saving..." : "Change Status"}
+                </Button>
+            </div>
         </form>
     );
 }

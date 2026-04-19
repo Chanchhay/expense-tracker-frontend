@@ -15,7 +15,14 @@ import { PageContainer } from "@/components/shared/page-container";
 import DeleteConfirmDialog from "@/components/shared/delete-confirm-dialog";
 
 export default function CategoriesPage() {
-    const { data: categories, isLoading, isError } = useGetCategoriesQuery();
+    const {
+        data: categories,
+        isLoading,
+        isError,
+    } = useGetCategoriesQuery(undefined, {
+        refetchOnFocus: true,
+        refetchOnReconnect: true,
+    });
     const [deleteCategory, { isLoading: isDeleting }] =
         useDeleteCategoryMutation();
     const [editingCategory, setEditingCategory] =

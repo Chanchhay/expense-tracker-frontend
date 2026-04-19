@@ -3,6 +3,7 @@ import type { SerializedError } from "@reduxjs/toolkit";
 
 type ErrorResponseData = {
     message?: string;
+    details?: string[];
 };
 
 function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
@@ -17,6 +18,12 @@ export function getErrorMessage(error: unknown): string {
     if (isFetchBaseQueryError(error)) {
         const data = error.data as ErrorResponseData | undefined;
 
+        // 1. Check for specific details first (e.g., "User account is inactive")
+        if (data?.details && Array.isArray(data.details) && data.details.length > 0) {
+            return data.details[0];
+        }
+
+        // 2. Fallback to generic message
         if (data?.message && typeof data.message === "string") {
             return data.message;
         }

@@ -33,6 +33,14 @@ export default function GoalForm({ goal, onSuccess }: Props) {
         goal?.image ?? null,
     );
 
+    const [prevGoalId, setPrevGoalId] = useState<string | undefined>(goal?.id);
+
+    if (goal?.id !== prevGoalId) {
+        setPrevGoalId(goal?.id);
+        setExistingGoalImage(goal?.image ?? null);
+        setGoalImageFile(null);
+    }
+
     const form = useForm<GoalFormValues>({
         resolver: zodResolver(goalSchema),
         defaultValues: {
@@ -48,7 +56,6 @@ export default function GoalForm({ goal, onSuccess }: Props) {
             targetAmount: goal ? String(goal.targetAmount) : "",
             deadline: goal?.deadline ?? "",
         });
-
     }, [goal, form]);
 
     const onSubmit = async (values: GoalFormValues) => {
@@ -68,20 +75,12 @@ export default function GoalForm({ goal, onSuccess }: Props) {
             };
 
             if (goal) {
-                await updateGoal({
-                    id: goal.id,
-                    body: payload,
-                }).unwrap();
+                await updateGoal({ id: goal.id, body: payload }).unwrap();
                 toast.success("Goal updated successfully");
             } else {
                 await createGoal(payload).unwrap();
                 toast.success("Goal created successfully");
-
-                form.reset({
-                    name: "",
-                    targetAmount: "",
-                    deadline: "",
-                });
+                form.reset();
                 setGoalImageFile(null);
                 setExistingGoalImage(null);
             }
@@ -92,71 +91,51 @@ export default function GoalForm({ goal, onSuccess }: Props) {
         }
     };
 
-    const handleReset = () => {
-        form.reset({
-            name: goal?.name ?? "",
-            targetAmount: goal ? String(goal.targetAmount) : "",
-            deadline: goal?.deadline ?? "",
-        });
-
-        setGoalImageFile(null);
-        setExistingGoalImage(goal?.image ?? null);
-    };
-
     const isSubmitting = isCreating || isUpdating;
 
     return (
-        <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            onReset={handleReset}
-            className="space-y-8 @container border p-4 rounded-md"
-        >
-            <div className="grid grid-cols-12 gap-4">
-                <div className="col-span-12">
-                    <p className="text-xl font-semibold">
-                        {goal ? "Edit Goal" : "Create Goal"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                        {goal
-                            ? "Update your savings goal"
-                            : "Add a new savings goal"}
-                    </p>
-                </div>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <Controller
+                control={form.control}
+                name="name"
+                render={({ field, fieldState }) => (
+                    <Field
+                        className="flex flex-col gap-1.5"
+                        data-invalid={fieldState.invalid}
+                    >
+                        <FieldLabel className="text-sm font-semibold text-foreground">
+                            Goal Name
+                        </FieldLabel>
+                        <Input
+                            type="text"
+                            placeholder="e.g. New Car, Emergency Fund"
+                            className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
+                            {...field}
+                        />
+                        {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                        )}
+                    </Field>
+                )}
+            />
 
-                <Controller
-                    control={form.control}
-                    name="name"
-                    render={({ field, fieldState }) => (
-                        <Field
-                            className="col-span-12 flex flex-col gap-2"
-                            data-invalid={fieldState.invalid}
-                        >
-                            <FieldLabel>Goal Name</FieldLabel>
-                            <Input
-                                type="text"
-                                placeholder="Emergency Fund"
-                                {...field}
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[fieldState.error]} />
-                            )}
-                        </Field>
-                    )}
-                />
-
+            <div className="grid grid-cols-2 gap-4">
                 <Controller
                     control={form.control}
                     name="targetAmount"
                     render={({ field, fieldState }) => (
                         <Field
-                            className="col-span-12 md:col-span-6 flex flex-col gap-2"
+                            className="flex flex-col gap-1.5"
                             data-invalid={fieldState.invalid}
                         >
-                            <FieldLabel>Target Amount</FieldLabel>
+                            <FieldLabel className="text-sm font-semibold text-foreground">
+                                Target Amount
+                            </FieldLabel>
                             <Input
                                 type="number"
                                 step="0.01"
                                 placeholder="0.00"
+                                className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
                                 value={field.value ?? ""}
                                 onChange={(e) => field.onChange(e.target.value)}
                             />
@@ -172,12 +151,15 @@ export default function GoalForm({ goal, onSuccess }: Props) {
                     name="deadline"
                     render={({ field, fieldState }) => (
                         <Field
-                            className="col-span-12 md:col-span-6 flex flex-col gap-2"
+                            className="flex flex-col gap-1.5"
                             data-invalid={fieldState.invalid}
                         >
-                            <FieldLabel>Deadline</FieldLabel>
+                            <FieldLabel className="text-sm font-semibold text-foreground">
+                                Target Date
+                            </FieldLabel>
                             <Input
                                 type="date"
+                                className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
                                 value={field.value ?? ""}
                                 onChange={(e) => field.onChange(e.target.value)}
                             />
@@ -187,54 +169,47 @@ export default function GoalForm({ goal, onSuccess }: Props) {
                         </Field>
                     )}
                 />
+            </div>
 
-                <div className="col-span-12 space-y-2">
-                    <FieldLabel>Goal Image</FieldLabel>
+            <div className="space-y-2 pt-2">
+                <FieldLabel className="text-sm font-semibold text-foreground">
+                    Cover Image (Optional)
+                </FieldLabel>
+                <div className="rounded-md border border-dashed border-muted-foreground/30 bg-muted/10 p-4">
                     <SingleImagePicker
                         file={goalImageFile}
                         previewUrl={existingGoalImage}
                         onChange={(file) => {
                             setGoalImageFile(file);
-
-                            if (!file && existingGoalImage) {
+                            if (!file && existingGoalImage)
                                 setExistingGoalImage(null);
-                            }
                         }}
                     />
                 </div>
+            </div>
 
-                <div className="col-span-12 grid grid-cols-2 gap-3">
-                    <Button type="reset" variant="outline" className="w-full">
-                        {goal ? "Reset" : "Clear"}
-                    </Button>
-
-                    <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting
-                            ? goal
-                                ? "Updating..."
-                                : "Creating..."
-                            : goal
-                              ? "Update Goal"
-                              : "Create Goal"}
-                    </Button>
-                </div>
-
-                {goal && (
-                    <div className="col-span-12">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="w-full"
-                            onClick={onSuccess}
-                        >
-                            Cancel Edit
-                        </Button>
-                    </div>
-                )}
+            <div className="flex justify-end gap-2 pt-4 border-t border-muted/60 mt-6">
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onSuccess}
+                    className="rounded-md font-medium"
+                >
+                    Cancel
+                </Button>
+                <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="rounded-md font-semibold shadow-sm"
+                >
+                    {isSubmitting
+                        ? goal
+                            ? "Updating..."
+                            : "Creating..."
+                        : goal
+                          ? "Save Changes"
+                          : "Create Goal"}
+                </Button>
             </div>
         </form>
     );

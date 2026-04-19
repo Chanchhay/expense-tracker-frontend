@@ -2,10 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Menu } from "lucide-react";
+import { Bell, LogOut } from "lucide-react";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/shared/theme-toggle"; // <-- Add this
 import {
     useGetCurrentUserQuery,
     useLogoutMutation,
@@ -28,29 +29,50 @@ export function AppHeader() {
     };
 
     return (
-        <header className="flex h-16 items-center justify-between border-b px-4">
-            <div className="flex items-center gap-3">
-                <SidebarTrigger>
-                    <Button variant="ghost" size="icon">
-                        <Menu className="size-5" />
-                    </Button>
-                </SidebarTrigger>
+        <header className="sticky top-0 z-30 flex h-20 items-center justify-between bg-background/80 px-4 md:px-8 backdrop-blur-md">
+            {/* LEFT SIDE: Trigger & Greeting */}
+            <div className="flex items-center gap-4">
+                <SidebarTrigger className="-ml-2 hidden md:flex hover:bg-muted/50 rounded-md transition-colors" />
 
                 <div>
-                    <p className="font-medium">Expense Tracker</p>
-                    <p className="text-sm text-muted-foreground">
-                        {user ? `Welcome, ${user.name}` : "Dashboard"}
+                    <h1 className="text-xl font-bold tracking-tight">
+                        {user
+                            ? `Welcome back, ${user.name.split(" ")[0]} 👋`
+                            : "Dashboard"}
+                    </h1>
+                    <p className="text-sm text-muted-foreground hidden md:block">
+                        Here is what&apos;s happening with your money today.
                     </p>
                 </div>
             </div>
 
-            <Button
-                variant="destructive"
-                onClick={handleLogout}
-                disabled={isLoading}
-            >
-                {isLoading ? "Logging out..." : "Logout"}
-            </Button>
+            {/* RIGHT SIDE: Actions */}
+            <div className="flex items-center gap-2 md:gap-4">
+                {/* Dark Mode Toggle */}
+                <ThemeToggle />
+
+                {/* Mock Notification Bell */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-md hover:bg-muted/50 text-muted-foreground"
+                >
+                    <Bell className="size-5" />
+                </Button>
+
+                {/* Refined Logout Button */}
+                <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    disabled={isLoading}
+                    className="rounded-md bg-muted/30 hover:bg-red-50 hover:text-red-600 text-muted-foreground transition-all px-4 font-medium"
+                >
+                    <LogOut className="size-4 mr-2" />
+                    <span className="hidden md:inline">
+                        {isLoading ? "Logging out..." : "Logout"}
+                    </span>
+                </Button>
+            </div>
         </header>
     );
 }

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Wallet } from "lucide-react"; // Using this as the logo icon
+
 import { dashboardNavItems } from "@/lib/constants";
 import { useGetCurrentUserQuery } from "@/features/auth/auth-api";
 import {
@@ -28,21 +30,32 @@ export function AppSidebar() {
     });
 
     return (
-        <Sidebar>
-            <SidebarHeader className="border-b">
-                <div className="px-2 py-2">
-                    <p className="text-lg font-semibold">Expense Tracker</p>
-                    <p className="text-sm text-muted-foreground">
-                        Management Panel
-                    </p>
+        <Sidebar className="border-r-0 shadow-sm bg-background/50 backdrop-blur-xl">
+            {/* BRANDING / LOGO AREA */}
+            <SidebarHeader className="pt-6 pb-4 px-6">
+                <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+                        <Wallet className="size-5" />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="font-bold text-lg tracking-tight">
+                            Plutolio
+                        </span>
+                        <span className="text-xs font-medium text-muted-foreground">
+                            Expense Tracker
+                        </span>
+                    </div>
                 </div>
             </SidebarHeader>
 
-            <SidebarContent>
+            {/* NAVIGATION CONTENT */}
+            <SidebarContent className="px-3">
                 <SidebarGroup>
-                    <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                    <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">
+                        Main Menu
+                    </SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <SidebarMenu>
+                        <SidebarMenu className="gap-1.5">
                             {visibleNavItems.map((item) => {
                                 const Icon = item.icon;
                                 const isActive = pathname === item.href;
@@ -52,10 +65,23 @@ export function AppSidebar() {
                                         <SidebarMenuButton
                                             asChild
                                             isActive={isActive}
+                                            tooltip={item.title}
+                                            className={`rounded-xl transition-all duration-200 h-11 px-3 ${
+                                                isActive
+                                                    ? "bg-primary/10 text-primary font-semibold hover:bg-primary/15 hover:text-primary"
+                                                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium"
+                                            }`}
                                         >
-                                            <Link href={item.href}>
-                                                <Icon className="size-4" />
-                                                <span>{item.title}</span>
+                                            <Link
+                                                href={item.href}
+                                                className="flex items-center gap-3"
+                                            >
+                                                <Icon
+                                                    className={`size-5 ${isActive ? "text-primary" : "text-muted-foreground/70"}`}
+                                                />
+                                                <span className="text-sm">
+                                                    {item.title}
+                                                </span>
                                             </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>

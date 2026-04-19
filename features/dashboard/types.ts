@@ -17,9 +17,14 @@ export type DashboardTransaction = {
     }[];
 };
 
+export type DashboardCurrencyTotal = {
+    currency: string;
+    incomeLast30Days: number;
+    expenseLast30Days: number;
+    netCashFlowLast30Days: number;
+};
+
 export type DashboardResponse = {
-    totalIncome: number;
-    totalExpense: number;
-    currentBalance: number;
+    totalsByCurrency: DashboardCurrencyTotal[];
     recentTransactions: DashboardTransaction[];
 };

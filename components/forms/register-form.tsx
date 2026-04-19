@@ -1,15 +1,32 @@
 "use client";
+
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { Field, FieldError, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { toast } from "sonner";
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
+
 import { useRegisterMutation } from "@/features/auth/auth-api";
 import { RegisterFormValues, registerSchema } from "@/features/auth/schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/get-error-message";
-import { useRouter } from "next/navigation";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+    Field,
+    FieldError,
+    FieldLabel,
+    FieldSeparator,
+} from "@/components/ui/field";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
 export default function RegisterForm() {
     const router = useRouter();
@@ -27,47 +44,56 @@ export default function RegisterForm() {
 
     const onSubmit = async (values: RegisterFormValues) => {
         try {
-            const res = await registerUser(values).unwrap();
-            toast.success(res.message || "Register successful");
+            await registerUser(values).unwrap();
+            toast.success("Registration successful! Please sign in.");
             router.push("/login");
         } catch (error: unknown) {
             toast.error(getErrorMessage(error));
         }
     };
 
+    const handleSocialAuth = (provider: "google" | "facebook") => {
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+
+        if (!backendUrl) {
+            toast.error("Backend URL is missing");
+            return;
+        }
+
+        window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
+    };
+
     return (
-        <>
-            <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                // onReset={onReset}
-                className="space-y-8 @container"
-            >
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-12">
-                        <p className="text-xl font-semibold">Register</p>
-                        <p className="text-sm text-muted-foreground">
-                            Create your account
-                        </p>
-                    </div>
+        <Card className="w-full rounded-lg shadow-lg border-muted/60">
+            <CardHeader className="text-center space-y-2 pb-6">
+                <CardTitle className="text-2xl font-bold tracking-tight">
+                    Create an account
+                </CardTitle>
+                <CardDescription className="text-muted-foreground font-medium">
+                    Sign up to start tracking your expenses
+                </CardDescription>
+            </CardHeader>
 
-                    {/* {error && (
-                        <div className="col-span-12 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-600">
-                            {error}
-                        </div>
-                    )} */}
-
+            <CardContent>
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-4"
+                >
                     <Controller
                         control={form.control}
                         name="name"
                         render={({ field, fieldState }) => (
                             <Field
-                                className="col-span-12 flex flex-col gap-2"
+                                className="flex flex-col gap-1.5"
                                 data-invalid={fieldState.invalid}
                             >
-                                <FieldLabel>Name</FieldLabel>
+                                <FieldLabel className="text-sm font-semibold">
+                                    Full Name
+                                </FieldLabel>
                                 <Input
-                                    placeholder="John Doe"
                                     type="text"
+                                    placeholder="John Doe"
+                                    className="rounded-md border-muted/60 bg-background shadow-sm h-11"
                                     {...field}
                                 />
                                 {fieldState.invalid && (
@@ -82,13 +108,16 @@ export default function RegisterForm() {
                         name="email"
                         render={({ field, fieldState }) => (
                             <Field
-                                className="col-span-12 flex flex-col gap-2"
+                                className="flex flex-col gap-1.5"
                                 data-invalid={fieldState.invalid}
                             >
-                                <FieldLabel>Email</FieldLabel>
+                                <FieldLabel className="text-sm font-semibold">
+                                    Email
+                                </FieldLabel>
                                 <Input
-                                    placeholder="example@gmail.com"
                                     type="email"
+                                    placeholder="name@example.com"
+                                    className="rounded-md border-muted/60 bg-background shadow-sm h-11"
                                     {...field}
                                 />
                                 {fieldState.invalid && (
@@ -103,13 +132,16 @@ export default function RegisterForm() {
                         name="password"
                         render={({ field, fieldState }) => (
                             <Field
-                                className="col-span-12 flex flex-col gap-2"
+                                className="flex flex-col gap-1.5"
                                 data-invalid={fieldState.invalid}
                             >
-                                <FieldLabel>Password</FieldLabel>
+                                <FieldLabel className="text-sm font-semibold">
+                                    Password
+                                </FieldLabel>
                                 <Input
-                                    placeholder="Enter password"
                                     type="password"
+                                    placeholder="Create a password"
+                                    className="rounded-md border-muted/60 bg-background shadow-sm h-11"
                                     {...field}
                                 />
                                 {fieldState.invalid && (
@@ -124,13 +156,16 @@ export default function RegisterForm() {
                         name="confirmPassword"
                         render={({ field, fieldState }) => (
                             <Field
-                                className="col-span-12 flex flex-col gap-2"
+                                className="flex flex-col gap-1.5"
                                 data-invalid={fieldState.invalid}
                             >
-                                <FieldLabel>Confirm Password</FieldLabel>
+                                <FieldLabel className="text-sm font-semibold">
+                                    Confirm Password
+                                </FieldLabel>
                                 <Input
-                                    placeholder="Confirm password"
                                     type="password"
+                                    placeholder="Confirm your password"
+                                    className="rounded-md border-muted/60 bg-background shadow-sm h-11"
                                     {...field}
                                 />
                                 {fieldState.invalid && (
@@ -140,32 +175,71 @@ export default function RegisterForm() {
                         )}
                     />
 
-                    <div className="col-span-12 grid grid-cols-2 gap-3">
-                        <Button
-                            type="reset"
-                            variant="outline"
-                            className="w-full"
-                        >
-                            Reset
-                        </Button>
+                    <Button
+                        type="submit"
+                        className="w-full h-11 rounded-md font-semibold shadow-sm mt-2"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <Loader2 className="size-5 animate-spin" />
+                        ) : (
+                            "Register"
+                        )}
+                    </Button>
+                </form>
 
-                        <Button
-                            type="submit"
-                            className="w-full"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? "Creating..." : "Register"}
-                        </Button>
-                    </div>
-
-                    <div className="col-span-12 text-center text-sm text-muted-foreground">
-                        Already have an account?{" "}
-                        <Link href="/login" className="font-medium underline">
-                            Login
-                        </Link>
-                    </div>
+                <div className="mt-6">
+                    <FieldSeparator className="text-xs text-muted-foreground font-medium">
+                        OR CONTINUE WITH
+                    </FieldSeparator>
                 </div>
-            </form>
-        </>
+
+                <div className="grid grid-cols-2 gap-3 mt-6">
+                    <Button
+                        onClick={() => handleSocialAuth("google")}
+                        disabled={isLoading}
+                        variant="outline"
+                        type="button"
+                        className="rounded-md h-11 font-medium bg-background"
+                    >
+                        <svg className="size-4 mr-2" viewBox="0 0 24 24">
+                            <path
+                                d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+                                fill="currentColor"
+                            />
+                        </svg>
+                        Google
+                    </Button>
+                    <Button
+                        onClick={() => handleSocialAuth("facebook")}
+                        disabled={isLoading}
+                        variant="outline"
+                        type="button"
+                        className="rounded-md h-11 font-medium bg-background"
+                    >
+                        <svg
+                            className="size-4 mr-2 text-[#1877F2]"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                        >
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        </svg>
+                        Facebook
+                    </Button>
+                </div>
+            </CardContent>
+
+            <CardFooter className="flex justify-center border-t border-muted/60 py-4 bg-muted/10 rounded-b-lg">
+                <p className="text-sm text-muted-foreground">
+                    Already have an account?{" "}
+                    <Link
+                        href="/login"
+                        className="font-semibold text-primary hover:underline"
+                    >
+                        Sign in
+                    </Link>
+                </p>
+            </CardFooter>
+        </Card>
     );
 }

@@ -176,6 +176,12 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
 
     const isSubmitting = isCreating || isUpdating;
 
+    const selectedAccountId = form.watch("accountId");
+
+    const selectedAccount = useMemo(() => {
+        return accounts.find((account) => account.id === selectedAccountId);
+    }, [accounts, selectedAccountId]);
+
     return (
         <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -273,6 +279,15 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]} />
                             )}
+                            <div className="col-span-12 md:col-span-6">
+                                <Field className="flex flex-col gap-2">
+                                    <FieldLabel>Currency</FieldLabel>
+                                    <div className="w-full rounded-md border px-3 py-2 bg-muted">
+                                        {selectedAccount?.currency ||
+                                            "Select account first"}
+                                    </div>
+                                </Field>
+                            </div>
                         </Field>
                     )}
                 />
