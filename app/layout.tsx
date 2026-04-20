@@ -4,6 +4,7 @@ import "./globals.css";
 import StoreProvider from "@/store/provider";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/shared/theme-provider";
+import { Analytics } from "@vercel/analytics/next";
 
 const jakarta = Plus_Jakarta_Sans({
     variable: "--font-jakarta",
@@ -90,6 +91,7 @@ export default function RootLayout({
                         <Toaster richColors position="top-center" />
                     </StoreProvider>
                 </ThemeProvider>
+                <Analytics />
             </body>
         </html>
     );
