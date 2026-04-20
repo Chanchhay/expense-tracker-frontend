@@ -1,18 +1,30 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
-
 export const alt = "Plutolio – From Financial Chaos to Perfect Clarity";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+const GREEN = "#34d399";
+const GREEN_DARK = "#10b981";
+
+const pills = [
+    { icon: "🏦", label: "Multi-Account" },
+    { icon: "🏷️", label: "Categories" },
+    { icon: "🎯", label: "Budgets" },
+    { icon: "📸", label: "Receipts" },
+    { icon: "🔒", label: "Secure" },
+];
+
+// Satori (the renderer behind ImageResponse) requires EVERY element that has
+// more than one child to declare display: "flex" explicitly. There is no
+// default block/inline layout — omitting it causes the prerender build error.
 export default function OGImage() {
     return new ImageResponse(
         <div
             style={{
+                display: "flex",
                 width: "1200px",
                 height: "630px",
-                display: "flex",
                 flexDirection: "column",
                 backgroundColor: "#0a0a0a",
                 fontFamily: "ui-sans-serif, system-ui, sans-serif",
@@ -20,58 +32,60 @@ export default function OGImage() {
                 overflow: "hidden",
             }}
         >
-            {/* ── Background grid ─────────────────────────────────────── */}
+            {/* ── Background dot grid ───────────────────────────────── */}
             <div
                 style={{
+                    display: "flex",
                     position: "absolute",
-                    inset: 0,
+                    inset: "0",
                     backgroundImage:
                         "linear-gradient(rgba(52,211,153,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(52,211,153,0.07) 1px, transparent 1px)",
                     backgroundSize: "48px 48px",
                 }}
             />
 
-            {/* ── Radial glow – top centre ────────────────────────────── */}
+            {/* ── Top green glow ────────────────────────────────────── */}
             <div
                 style={{
+                    display: "flex",
                     position: "absolute",
-                    top: "-160px",
-                    left: "50%",
-                    transform: "translateX(-50%)",
+                    top: "-200px",
+                    left: "150px",
                     width: "900px",
                     height: "520px",
                     borderRadius: "50%",
                     background:
-                        "radial-gradient(ellipse at center, rgba(52,211,153,0.18) 0%, transparent 70%)",
+                        "radial-gradient(ellipse at center, rgba(52,211,153,0.22) 0%, transparent 70%)",
                 }}
             />
 
-            {/* ── Subtle bottom glow ──────────────────────────────────── */}
+            {/* ── Bottom-right blue glow ────────────────────────────── */}
             <div
                 style={{
+                    display: "flex",
                     position: "absolute",
-                    bottom: "-120px",
-                    right: "-80px",
+                    bottom: "-140px",
+                    right: "-100px",
                     width: "600px",
                     height: "400px",
                     borderRadius: "50%",
                     background:
-                        "radial-gradient(ellipse at center, rgba(59,130,246,0.12) 0%, transparent 70%)",
+                        "radial-gradient(ellipse at center, rgba(59,130,246,0.14) 0%, transparent 70%)",
                 }}
             />
 
-            {/* ── Main content ────────────────────────────────────────── */}
+            {/* ── Main content ──────────────────────────────────────── */}
             <div
                 style={{
-                    position: "relative",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
-                    padding: "56px 72px",
+                    position: "relative",
+                    padding: "52px 68px",
                     height: "100%",
                 }}
             >
-                {/* Top: logo + badge */}
+                {/* Row 1 — logo + badge */}
                 <div
                     style={{
                         display: "flex",
@@ -79,7 +93,7 @@ export default function OGImage() {
                         justifyContent: "space-between",
                     }}
                 >
-                    {/* Logo */}
+                    {/* Logo mark + wordmark */}
                     <div
                         style={{
                             display: "flex",
@@ -89,18 +103,16 @@ export default function OGImage() {
                     >
                         <div
                             style={{
-                                width: "52px",
-                                height: "52px",
-                                borderRadius: "14px",
-                                background:
-                                    "linear-gradient(135deg, #34d399 0%, #10b981 100%)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                boxShadow: "0 0 32px rgba(52,211,153,0.4)",
+                                width: "52px",
+                                height: "52px",
+                                borderRadius: "14px",
+                                background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_DARK} 100%)`,
+                                boxShadow: "0 0 28px rgba(52,211,153,0.45)",
                             }}
                         >
-                            {/* Bar chart icon (inline SVG path) */}
                             <svg
                                 width="28"
                                 height="28"
@@ -135,7 +147,8 @@ export default function OGImage() {
                         </div>
                         <span
                             style={{
-                                fontSize: "32px",
+                                display: "flex",
+                                fontSize: "30px",
                                 fontWeight: "800",
                                 color: "#ffffff",
                                 letterSpacing: "-0.5px",
@@ -151,15 +164,18 @@ export default function OGImage() {
                             display: "flex",
                             alignItems: "center",
                             gap: "8px",
-                            border: "1px solid rgba(52,211,153,0.3)",
+                            border: "1px solid rgba(52,211,153,0.30)",
                             borderRadius: "999px",
-                            padding: "8px 18px",
+                            padding: "8px 20px",
                             background: "rgba(52,211,153,0.08)",
                         }}
                     >
-                        <span style={{ fontSize: "18px" }}>💸</span>
+                        <span style={{ display: "flex", fontSize: "17px" }}>
+                            💸
+                        </span>
                         <span
                             style={{
+                                display: "flex",
                                 fontSize: "15px",
                                 color: "#6ee7b7",
                                 fontWeight: "600",
@@ -170,44 +186,47 @@ export default function OGImage() {
                     </div>
                 </div>
 
-                {/* Centre: headline */}
+                {/* Row 2 — headline + subtext */}
                 <div
                     style={{
                         display: "flex",
                         flexDirection: "column",
-                        gap: "20px",
+                        gap: "18px",
                     }}
                 >
                     <div
                         style={{
-                            fontSize: "76px",
+                            display: "flex",
+                            flexDirection: "column",
+                            fontSize: "74px",
                             fontWeight: "900",
                             color: "#ffffff",
                             lineHeight: "1.0",
                             letterSpacing: "-2px",
                         }}
                     >
-                        From Financial Chaos
-                        <br />
-                        <span style={{ color: "#34d399" }}>
+                        <span style={{ display: "flex" }}>
+                            From Financial Chaos
+                        </span>
+                        <span style={{ display: "flex", color: GREEN }}>
                             to Perfect Clarity
                         </span>
                     </div>
-                    <div
+                    <span
                         style={{
-                            fontSize: "24px",
-                            color: "rgba(255,255,255,0.55)",
-                            fontWeight: "400",
-                            maxWidth: "680px",
+                            display: "flex",
+                            fontSize: "23px",
+                            color: "rgba(255,255,255,0.52)",
+                            maxWidth: "660px",
                             lineHeight: "1.5",
                         }}
                     >
                         Track accounts, categorize expenses, attach receipts,
                         and set budgets — all in one place.
-                    </div>
+                    </span>
                 </div>
 
-                {/* Bottom: feature pills + CTA */}
+                {/* Row 3 — feature pills + CTA */}
                 <div
                     style={{
                         display: "flex",
@@ -215,64 +234,57 @@ export default function OGImage() {
                         justifyContent: "space-between",
                     }}
                 >
-                    {/* Feature pills */}
-                    <div
-                        style={{
-                            display: "flex",
-                            gap: "10px",
-                            flexWrap: "wrap",
-                        }}
-                    >
-                        {[
-                            { icon: "🏦", label: "Multi-Account" },
-                            { icon: "🏷️", label: "Categories" },
-                            { icon: "🎯", label: "Budgets" },
-                            { icon: "📸", label: "Receipts" },
-                            { icon: "🔒", label: "Secure" },
-                        ].map((f) => (
+                    {/* Pills */}
+                    <div style={{ display: "flex", gap: "10px" }}>
+                        {pills.map((p) => (
                             <div
-                                key={f.label}
+                                key={p.label}
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
                                     gap: "6px",
-                                    background: "rgba(255,255,255,0.06)",
-                                    border: "1px solid rgba(255,255,255,0.1)",
+                                    background: "rgba(255,255,255,0.055)",
+                                    border: "1px solid rgba(255,255,255,0.10)",
                                     borderRadius: "8px",
                                     padding: "8px 14px",
                                 }}
                             >
-                                <span style={{ fontSize: "16px" }}>
-                                    {f.icon}
+                                <span
+                                    style={{
+                                        display: "flex",
+                                        fontSize: "15px",
+                                    }}
+                                >
+                                    {p.icon}
                                 </span>
                                 <span
                                     style={{
-                                        fontSize: "15px",
-                                        color: "rgba(255,255,255,0.75)",
+                                        display: "flex",
+                                        fontSize: "14px",
+                                        color: "rgba(255,255,255,0.72)",
                                         fontWeight: "600",
                                     }}
                                 >
-                                    {f.label}
+                                    {p.label}
                                 </span>
                             </div>
                         ))}
                     </div>
 
-                    {/* CTA button */}
+                    {/* CTA */}
                     <div
                         style={{
                             display: "flex",
                             alignItems: "center",
-                            gap: "8px",
-                            background:
-                                "linear-gradient(135deg, #34d399 0%, #10b981 100%)",
+                            background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_DARK} 100%)`,
                             borderRadius: "12px",
-                            padding: "14px 28px",
-                            boxShadow: "0 0 24px rgba(52,211,153,0.35)",
+                            padding: "14px 30px",
+                            boxShadow: "0 0 28px rgba(52,211,153,0.38)",
                         }}
                     >
                         <span
                             style={{
+                                display: "flex",
                                 fontSize: "18px",
                                 fontWeight: "800",
                                 color: "#052e16",
@@ -283,23 +295,7 @@ export default function OGImage() {
                     </div>
                 </div>
             </div>
-
-            {/* ── Decorative mini stat cards (right side) ─────────────── */}
-            <div
-                style={{
-                    position: "absolute",
-                    right: "60px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "12px",
-                    opacity: 0,
-                }}
-            />
         </div>,
-        {
-            ...size,
-        },
+        { ...size },
     );
 }
