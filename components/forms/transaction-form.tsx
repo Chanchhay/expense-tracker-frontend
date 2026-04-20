@@ -81,16 +81,9 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
             source: transaction?.source ?? "",
             note: transaction?.note ?? "",
         });
-
-        setExistingImages(
-            transaction?.images?.map((item) => ({
-                imageUrl: item.imageUrl,
-                imagePublicId: item.imagePublicId,
-            })) ?? [],
-        );
-
+        setExistingImages(transaction?.images ? [...transaction.images] : []);
         setNewFiles([]);
-    }, [transaction, form]);
+    }, [transaction?.id]);
 
     useEffect(() => {
         const currentCategoryId = form.getValues("categoryId");
@@ -124,11 +117,22 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
             const uploadedNewImages = await Promise.all(
                 newFiles.map((file) => uploadToCloudinary(file)),
             );
+            const mergedImages = [...existingImages, ...uploadedNewImages];
+            const uniqueImages = mergedImages.filter(
+                (img, i, arr) =>
+                    arr.findIndex(
+                        (x) => x.imagePublicId === img.imagePublicId,
+                    ) === i,
+            );
+
+            console.log("existingImages before submit:", existingImages);
+            console.log("payload images:", uniqueImages);
 
             const payload = {
                 ...values,
                 note: values.note?.trim() ? values.note : undefined,
-                images: [...existingImages, ...uploadedNewImages],
+                // images: [...existingImages, ...uploadedNewImages],
+                images: uniqueImages,
             };
 
             if (transaction) {
@@ -164,12 +168,7 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
     const handleReset = () => {
         form.reset(getDefaultValues());
 
-        setExistingImages(
-            transaction?.images?.map((item) => ({
-                imageUrl: item.imageUrl,
-                imagePublicId: item.imagePublicId,
-            })) ?? [],
-        );
+        setExistingImages(transaction?.images ? [...transaction.images] : []);
 
         setNewFiles([]);
     };
@@ -339,7 +338,7 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                             data-invalid={fieldState.invalid}
                         >
                             <FieldLabel>Date</FieldLabel>
-                            <Input type="date" {...field} max={getToday()}/>
+                            <Input type="date" {...field} max={getToday()} />
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]} />
                             )}

@@ -57,16 +57,21 @@ export default function TransactionsPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingTransaction, setEditingTransaction] =
         useState<TransactionResponse | null>(null);
-    const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
+    const [transactionToDelete, setTransactionToDelete] = useState<
+        string | null
+    >(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
 
     const [typeFilter, setTypeFilter] = useState<"" | TransactionType>("");
     const [monthFilter, setMonthFilter] = useState(getCurrentMonthValue());
 
-    const queryParams = useMemo(() => ({
-        ...(typeFilter ? { type: typeFilter } : {}),
-        ...(monthFilter ? { month: monthFilter } : {}),
-    }), [typeFilter, monthFilter]);
+    const queryParams = useMemo(
+        () => ({
+            ...(typeFilter ? { type: typeFilter } : {}),
+            ...(monthFilter ? { month: monthFilter } : {}),
+        }),
+        [typeFilter, monthFilter],
+    );
 
     const {
         data: transactions,
@@ -113,12 +118,15 @@ export default function TransactionsPage() {
             <div className="space-y-6 pb-8">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 w-full">
                     <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-
                         <div className="flex items-center rounded-md border border-muted/60 bg-background px-3 shadow-sm focus-within:ring-2 focus-within:ring-primary/20 min-w-0">
                             <Filter className="size-4 text-muted-foreground mr-2 shrink-0" />
                             <select
                                 value={typeFilter}
-                                onChange={(e) => setTypeFilter(e.target.value as "" | TransactionType)}
+                                onChange={(e) =>
+                                    setTypeFilter(
+                                        e.target.value as "" | TransactionType,
+                                    )
+                                }
                                 className="appearance-none bg-transparent py-2 text-sm font-medium outline-none cursor-pointer w-full min-w-0"
                             >
                                 <option value="">All Types</option>
@@ -133,7 +141,9 @@ export default function TransactionsPage() {
                                 type="month"
                                 value={monthFilter}
                                 onClick={(e) => {
-                                    try { e.currentTarget.showPicker(); } catch {}
+                                    try {
+                                        e.currentTarget.showPicker();
+                                    } catch {}
                                 }}
                                 onChange={(e) => setMonthFilter(e.target.value)}
                                 className="bg-transparent py-2 text-sm font-medium outline-none cursor-pointer flex-1 min-w-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
@@ -176,7 +186,8 @@ export default function TransactionsPage() {
                     <span>{transactions?.length || 0} Records Found</span>
                     {(isLoading || isFetching) && (
                         <span className="flex items-center text-primary">
-                            <Loader2 className="size-4 animate-spin mr-2" /> Syncing...
+                            <Loader2 className="size-4 animate-spin mr-2" />{" "}
+                            Syncing...
                         </span>
                     )}
                 </div>
@@ -187,16 +198,21 @@ export default function TransactionsPage() {
                         <div className="size-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
                             <X className="size-6 text-red-500" />
                         </div>
-                        <p className="font-medium text-foreground">Failed to load transactions</p>
+                        <p className="font-medium text-foreground">
+                            Failed to load transactions
+                        </p>
                         <p className="text-sm text-muted-foreground mt-1 text-center">
                             Please try refreshing the page.
                         </p>
                     </div>
                 ) : !transactions || transactions.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-12 border border-dashed border-muted/60 rounded-lg bg-transparent text-center">
-                        <p className="font-medium text-foreground">No transactions logged yet.</p>
+                        <p className="font-medium text-foreground">
+                            No transactions logged yet.
+                        </p>
                         <p className="text-sm text-muted-foreground mt-1">
-                            Adjust your filters or click &quot;Add Record&quot; to start.
+                            Adjust your filters or click &quot;Add Record&quot;
+                            to start.
                         </p>
                     </div>
                 ) : (
@@ -210,21 +226,28 @@ export default function TransactionsPage() {
                                     className="rounded-lg shadow-sm border-muted/60 transition-all hover:shadow-md flex flex-col group overflow-hidden"
                                 >
                                     <CardContent className="p-5 flex flex-col h-full min-w-0">
-
                                         {/* Top: icon + category + menu */}
                                         <div className="flex items-start justify-between mb-4 gap-2 min-w-0">
                                             <div className="flex items-center gap-3 min-w-0">
-                                                <div className={`flex items-center justify-center size-10 rounded-md shrink-0 ${isIncome ? "bg-green-100 text-green-600 border border-green-200" : "bg-red-50 text-red-600 border border-red-100"}`}>
-                                                    {isIncome
-                                                        ? <ArrowUpRight className="size-5" />
-                                                        : <ArrowDownRight className="size-5" />}
+                                                <div
+                                                    className={`flex items-center justify-center size-10 rounded-md shrink-0 ${isIncome ? "bg-green-100 text-green-600 border border-green-200" : "bg-red-50 text-red-600 border border-red-100"}`}
+                                                >
+                                                    {isIncome ? (
+                                                        <ArrowUpRight className="size-5" />
+                                                    ) : (
+                                                        <ArrowDownRight className="size-5" />
+                                                    )}
                                                 </div>
                                                 <div className="min-w-0">
                                                     <p className="font-semibold text-foreground leading-tight truncate">
-                                                        {transaction.categoryName}
+                                                        {
+                                                            transaction.categoryName
+                                                        }
                                                     </p>
                                                     <p className="text-xs text-muted-foreground font-medium mt-0.5 truncate">
-                                                        {transaction.accountName}
+                                                        {
+                                                            transaction.accountName
+                                                        }
                                                     </p>
                                                 </div>
                                             </div>
@@ -239,18 +262,31 @@ export default function TransactionsPage() {
                                                         <MoreVertical className="size-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="rounded-md shadow-lg border-muted/60">
+                                                <DropdownMenuContent
+                                                    align="end"
+                                                    className="rounded-md shadow-lg border-muted/60"
+                                                >
                                                     <DropdownMenuItem
-                                                        onClick={() => handleEdit(transaction)}
+                                                        onClick={() =>
+                                                            handleEdit(
+                                                                transaction,
+                                                            )
+                                                        }
                                                         className="rounded-sm cursor-pointer"
                                                     >
-                                                        <Edit2 className="size-4 mr-2" /> Edit Details
+                                                        <Edit2 className="size-4 mr-2" />{" "}
+                                                        Edit Details
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
-                                                        onClick={() => setTransactionToDelete(transaction.id)}
+                                                        onClick={() =>
+                                                            setTransactionToDelete(
+                                                                transaction.id,
+                                                            )
+                                                        }
                                                         className="rounded-sm cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
                                                     >
-                                                        <Trash2 className="size-4 mr-2" /> Delete
+                                                        <Trash2 className="size-4 mr-2" />{" "}
+                                                        Delete
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
@@ -265,9 +301,16 @@ export default function TransactionsPage() {
                                          * width; text-3xl is restored at xl where cards are wider.
                                          */}
                                         <div className="mb-5 min-w-0">
-                                            <p className={`text-2xl xl:text-3xl font-bold tracking-tight break-all ${isIncome ? "text-green-600" : "text-foreground"}`}>
+                                            <p
+                                                className={`text-2xl xl:text-3xl font-bold tracking-tight break-all ${isIncome ? "text-green-600" : "text-foreground"}`}
+                                            >
                                                 {isIncome ? "+" : "-"}
-                                                {transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                {transaction.amount.toLocaleString(
+                                                    undefined,
+                                                    {
+                                                        minimumFractionDigits: 2,
+                                                    },
+                                                )}
                                                 <span className="text-sm font-medium text-muted-foreground ml-1 break-normal">
                                                     {transaction.currency}
                                                 </span>
@@ -295,31 +338,52 @@ export default function TransactionsPage() {
 
                                             {transaction.note && (
                                                 <p className="text-sm text-muted-foreground bg-muted/10 p-2.5 rounded-md border border-muted/30 italic break-words line-clamp-3">
-                                                    &quot;{transaction.note}&quot;
+                                                    &quot;{transaction.note}
+                                                    &quot;
                                                 </p>
                                             )}
 
-                                            {transaction.images && transaction.images.length > 0 && (
-                                                <div className="flex flex-wrap items-center gap-2 pt-1">
-                                                    {transaction.images.map((img) => (
-                                                        <button
-                                                            key={img.imagePublicId}
-                                                            type="button"
-                                                            onClick={() => setPreviewImage(img.imageUrl)}
-                                                            className="relative size-12 rounded-md overflow-hidden border border-muted/60 hover:ring-2 hover:ring-primary/50 transition-all focus:outline-none bg-muted/20 shrink-0"
-                                                            title="View Receipt"
-                                                        >
-                                                            <Image
-                                                                src={img.imageUrl}
-                                                                alt="Receipt"
-                                                                className="object-cover w-full h-full"
-                                                                width={600}
-                                                                height={600}
-                                                            />
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            )}
+                                            {transaction.images &&
+                                                transaction.images.length >
+                                                    0 && (
+                                                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                                                        {[
+                                                            ...new Map(
+                                                                transaction.images.map(
+                                                                    (img) => [
+                                                                        img.imagePublicId,
+                                                                        img,
+                                                                    ],
+                                                                ),
+                                                            ).values(),
+                                                        ].map((img, i) => (
+                                                            <button
+                                                                key={
+                                                                    img.imagePublicId ??
+                                                                    i
+                                                                }
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setPreviewImage(
+                                                                        img.imageUrl,
+                                                                    )
+                                                                }
+                                                                className="relative size-12 rounded-md overflow-hidden border border-muted/60 hover:ring-2 hover:ring-primary/50 transition-all focus:outline-none bg-muted/20 shrink-0"
+                                                                title="View Receipt"
+                                                            >
+                                                                <Image
+                                                                    src={
+                                                                        img.imageUrl
+                                                                    }
+                                                                    alt="Receipt"
+                                                                    className="object-cover w-full h-full"
+                                                                    width={600}
+                                                                    height={600}
+                                                                />
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -329,11 +393,16 @@ export default function TransactionsPage() {
                 )}
             </div>
 
-            <Dialog open={isFormOpen} onOpenChange={(open) => !open && handleCloseForm()}>
+            <Dialog
+                open={isFormOpen}
+                onOpenChange={(open) => !open && handleCloseForm()}
+            >
                 <DialogContent className="w-[95vw] sm:w-full sm:max-w-[600px] rounded-lg border-muted/60 shadow-lg max-h-[90dvh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle className="text-xl">
-                            {editingTransaction ? "Edit Transaction" : "New Transaction"}
+                            {editingTransaction
+                                ? "Edit Transaction"
+                                : "New Transaction"}
                         </DialogTitle>
                         <DialogDescription>
                             {editingTransaction
@@ -357,7 +426,9 @@ export default function TransactionsPage() {
                 isLoading={isDeleting}
                 title="Delete Transaction?"
                 description="This action cannot be undone and will update your account balances."
-                onConfirm={() => { if (transactionToDelete) handleDelete(transactionToDelete); }}
+                onConfirm={() => {
+                    if (transactionToDelete) handleDelete(transactionToDelete);
+                }}
             />
 
             {/* Image preview lightbox */}
@@ -368,7 +439,10 @@ export default function TransactionsPage() {
              * of fill + a sized parent, which is the correct Next.js pattern
              * for unknown-size remote images.
              */}
-            <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
+            <Dialog
+                open={!!previewImage}
+                onOpenChange={(open) => !open && setPreviewImage(null)}
+            >
                 <DialogContent className="w-[95vw] sm:w-full sm:max-w-[800px] rounded-lg border-muted/60 shadow-2xl p-4 bg-background">
                     <DialogHeader className="sr-only">
                         <DialogTitle>View Attachment</DialogTitle>
