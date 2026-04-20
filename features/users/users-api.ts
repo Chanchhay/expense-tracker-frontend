@@ -8,7 +8,7 @@ export const usersApi = baseApi.injectEndpoints({
             UpdateProfileRequest
         >({
             query: (body) => ({
-                url: "/api/v1/users",
+                url: "/api/users",
                 method: "PATCH",
                 body,
             }),

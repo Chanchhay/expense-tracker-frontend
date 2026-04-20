@@ -129,7 +129,7 @@ export default function CategoryForm({ category, onSuccess }: Props) {
                             <FieldLabel>Type</FieldLabel>
                             <select
                                 {...field}
-                                className="w-full rounded-md border px-3 py-2"
+                                className="w-full rounded-md border px-3 py-2 bg-background text-foreground"
                             >
                                 {categoryTypes.map((type) => (
                                     <option key={type} value={type}>

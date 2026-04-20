@@ -9,14 +9,14 @@ export const adminUsersApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getAdminUsers: builder.query<AdminUserResponse[], void>({
             query: () => ({
-                url: "/api/v1/admin/users",
+                url: "/api/admin/users",
             }),
             providesTags: ["User"],
         }),
 
         getAdminUserById: builder.query<AdminUserResponse, string>({
             query: (id) => ({
-                url: `/api/v1/admin/users/${id}`,
+                url: `/api/admin/users/${id}`,
             }),
             providesTags: ["User"],
         }),
@@ -26,7 +26,7 @@ export const adminUsersApi = baseApi.injectEndpoints({
             { id: string; body: UpdateUserRoleRequest }
         >({
             query: ({ id, body }) => ({
-                url: `/api/v1/admin/users/${id}/role`,
+                url: `/api/admin/users/${id}/role`,
                 method: "PUT",
                 body,
             }),
@@ -38,7 +38,7 @@ export const adminUsersApi = baseApi.injectEndpoints({
             { id: string; body: UpdateUserStatusRequest }
         >({
             query: ({ id, body }) => ({
-                url: `/api/v1/admin/users/${id}/status`,
+                url: `/api/admin/users/${id}/status`,
                 method: "PATCH",
                 body,
             }),

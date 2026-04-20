@@ -303,7 +303,7 @@ export default function GoalsPage() {
                     <div className="pt-2">
                         <GoalForm
                             goal={editingGoal}
-                            onSuccess={handleCloseForm}
+                            onSuccessAction={handleCloseForm}
                         />
                     </div>
                 </DialogContent>

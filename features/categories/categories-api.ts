@@ -9,7 +9,7 @@ export const categoriesApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getCategories: builder.query<CategoryResponse[], void>({
             query: () => ({
-                url: "/api/v1/categories",
+                url: "/api/categories",
                 method: "GET",
             }),
             providesTags: ["Category"],
@@ -20,7 +20,7 @@ export const categoriesApi = baseApi.injectEndpoints({
             CreateCategoryRequest
         >({
             query: (body) => ({
-                url: "/api/v1/categories",
+                url: "/api/categories",
                 method: "POST",
                 body,
             }),
@@ -32,7 +32,7 @@ export const categoriesApi = baseApi.injectEndpoints({
             { id: number; body: UpdateCategoryRequest }
         >({
             query: ({ id, body }) => ({
-                url: `/api/v1/categories/${id}`,
+                url: `/api/categories/${id}`,
                 method: "PUT",
                 body,
             }),
@@ -41,7 +41,7 @@ export const categoriesApi = baseApi.injectEndpoints({
 
         deleteCategory: builder.mutation<void, number>({
             query: (id) => ({
-                url: `/api/v1/categories/${id}`,
+                url: `/api/categories/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Category"],

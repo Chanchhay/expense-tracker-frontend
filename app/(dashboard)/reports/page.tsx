@@ -208,7 +208,7 @@ export default function ReportsPage() {
                                         onChange={(e) =>
                                             setGroupBy(e.target.value)
                                         }
-                                        className="w-full appearance-none rounded-md border border-muted/60 bg-muted/10 px-3 py-2 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                                        className="w-full appearance-none rounded-md border border-muted/60 px-3 py-2 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer bg-background text-foreground"
                                     >
                                         <option value="DAY">Daily</option>
                                         <option value="MONTH">Monthly</option>

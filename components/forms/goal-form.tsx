@@ -21,10 +21,14 @@ import SingleImagePicker from "@/components/shared/single-image-picker";
 
 type Props = {
     goal?: SavingsGoalResponse | null;
-    onSuccess?: () => void;
+    onSuccessAction?: () => void;
 };
 
-export default function GoalForm({ goal, onSuccess }: Props) {
+function getToday() {
+    return new Date().toISOString().split("T")[0];
+}
+
+export default function GoalForm({ goal, onSuccessAction }: Props) {
     const [createGoal, { isLoading: isCreating }] = useCreateGoalMutation();
     const [updateGoal, { isLoading: isUpdating }] = useUpdateGoalMutation();
 
@@ -32,6 +36,8 @@ export default function GoalForm({ goal, onSuccess }: Props) {
     const [existingGoalImage, setExistingGoalImage] = useState<string | null>(
         goal?.image ?? null,
     );
+
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
 
     const [prevGoalId, setPrevGoalId] = useState<string | undefined>(goal?.id);
 
@@ -60,12 +66,14 @@ export default function GoalForm({ goal, onSuccess }: Props) {
 
     const onSubmit = async (values: GoalFormValues) => {
         try {
+            setIsUploadingImage(true);
             let imageUrl = existingGoalImage ?? undefined;
 
             if (goalImageFile) {
                 const uploaded = await uploadToCloudinary(goalImageFile);
                 imageUrl = uploaded.imageUrl;
             }
+            setIsUploadingImage(false);
 
             const payload = {
                 name: values.name,
@@ -85,13 +93,16 @@ export default function GoalForm({ goal, onSuccess }: Props) {
                 setExistingGoalImage(null);
             }
 
-            onSuccess?.();
+            onSuccessAction?.();
         } catch (error: unknown) {
+            // 🛑 FIX 4: Ensure loading state turns off if upload or save fails
+            setIsUploadingImage(false);
             toast.error(getErrorMessage(error));
         }
     };
 
-    const isSubmitting = isCreating || isUpdating;
+    // Include the image upload in the total submitting state
+    const isSubmitting = isCreating || isUpdating || isUploadingImage;
 
     return (
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -159,6 +170,7 @@ export default function GoalForm({ goal, onSuccess }: Props) {
                             </FieldLabel>
                             <Input
                                 type="date"
+                                min={getToday()}
                                 className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
                                 value={field.value ?? ""}
                                 onChange={(e) => field.onChange(e.target.value)}
@@ -192,7 +204,7 @@ export default function GoalForm({ goal, onSuccess }: Props) {
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={onSuccess}
+                    onClick={onSuccessAction}
                     className="rounded-md font-medium"
                 >
                     Cancel
@@ -200,15 +212,18 @@ export default function GoalForm({ goal, onSuccess }: Props) {
                 <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="rounded-md font-semibold shadow-sm"
+                    className="rounded-md font-semibold shadow-sm w-full sm:w-auto min-w-[120px]"
                 >
-                    {isSubmitting
-                        ? goal
-                            ? "Updating..."
-                            : "Creating..."
-                        : goal
-                          ? "Save Changes"
-                          : "Create Goal"}
+                    {/* 🛑 FIX 6: Dynamic button text so user knows image is uploading */}
+                    {isUploadingImage
+                        ? "Uploading image..."
+                        : isSubmitting
+                          ? goal
+                              ? "Updating..."
+                              : "Creating..."
+                          : goal
+                            ? "Save Changes"
+                            : "Create Goal"}
                 </Button>
             </div>
         </form>

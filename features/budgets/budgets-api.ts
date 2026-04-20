@@ -10,21 +10,21 @@ export const budgetsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getBudgets: builder.query<BudgetResponse[], void>({
             query: () => ({
-                url: "/api/v1/budgets",
+                url: "/api/budgets",
             }),
             providesTags: ["Budget"],
         }),
 
         getBudgetById: builder.query<BudgetResponse, string>({
             query: (id) => ({
-                url: `/api/v1/budgets/${id}`,
+                url: `/api/budgets/${id}`,
             }),
             providesTags: ["Budget"],
         }),
 
         createBudget: builder.mutation<BudgetResponse, CreateBudgetRequest>({
             query: (body) => ({
-                url: "/api/v1/budgets",
+                url: "/api/budgets",
                 method: "POST",
                 body,
             }),
@@ -36,7 +36,7 @@ export const budgetsApi = baseApi.injectEndpoints({
             { id: string; body: UpdateBudgetRequest }
         >({
             query: ({ id, body }) => ({
-                url: `/api/v1/budgets/${id}`,
+                url: `/api/budgets/${id}`,
                 method: "PUT",
                 body,
             }),
@@ -45,7 +45,7 @@ export const budgetsApi = baseApi.injectEndpoints({
 
         deleteBudget: builder.mutation<void, string>({
             query: (id) => ({
-                url: `/api/v1/budgets/${id}`,
+                url: `/api/budgets/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Budget"],
@@ -53,7 +53,7 @@ export const budgetsApi = baseApi.injectEndpoints({
 
         getBudgetSummary: builder.query<BudgetSummaryResponse, string>({
             query: (month) => ({
-                url: "/api/v1/budgets/summary",
+                url: "/api/budgets/summary",
                 params: { month },
             }),
             providesTags: ["Budget"],
