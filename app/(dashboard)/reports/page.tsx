@@ -365,7 +365,7 @@ export default function ReportsPage() {
                                 Cash Flow Trend ({effectiveCurrency})
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="pt-6 h-[350px] w-full">
+                        <CardContent className="pt-6 h-[350px] w-full dark:white">
                             <ResponsiveContainer
                                 width="100%"
                                 height="100%"
@@ -421,25 +421,20 @@ export default function ReportsPage() {
                                     <CartesianGrid
                                         strokeDasharray="3 3"
                                         vertical={false}
-                                        stroke="hsl(var(--muted-foreground)/0.2)"
+                                        stroke="#e5e7eb"
                                     />
                                     <XAxis
                                         dataKey="name"
                                         axisLine={false}
                                         tickLine={false}
-                                        tick={{
-                                            fontSize: 12,
-                                            fill: "hsl(var(--muted-foreground))",
-                                        }}
+                                        tick={{ fontSize: 12, fill: "#6b7280" }}
                                         dy={10}
                                     />
                                     <YAxis
                                         axisLine={false}
                                         tickLine={false}
-                                        tick={{
-                                            fontSize: 12,
-                                            fill: "hsl(var(--muted-foreground))",
-                                        }}
+                                        tick={{ fontSize: 12, fill: "#6b7280" }}
+                                        tickFormatter={(value) => `$${value}`}
                                     />
                                     <Tooltip
                                         contentStyle={{
