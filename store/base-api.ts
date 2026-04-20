@@ -22,7 +22,7 @@ const baseQueryWithReauth: BaseQueryFn<
         console.log("Access token expired, trying refresh...");
         const refreshResult = await rawBaseQuery(
             {
-                url: "/api/v1/auth/refresh",
+                url: "/api/auth/refresh",
                 method: "POST",
             },
             api,
