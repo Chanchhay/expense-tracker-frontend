@@ -11,7 +11,7 @@ export const reportsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getMonthlySummary: builder.query<MonthlySummaryResponse, string>({
             query: (month) => ({
-                url: "/api/v1/reports/monthly-summary",
+                url: "/api/reports/monthly-summary",
                 params: { month },
             }),
             providesTags: ["Report"],
@@ -19,7 +19,7 @@ export const reportsApi = baseApi.injectEndpoints({
 
         getCategoryBreakdown: builder.query<CategoryBreakdownResponse, string>({
             query: (month) => ({
-                url: "/api/v1/reports/category-breakdown",
+                url: "/api/reports/category-breakdown",
                 params: { month },
             }),
             providesTags: ["Report"],
@@ -30,7 +30,7 @@ export const reportsApi = baseApi.injectEndpoints({
             { from: string; to: string; groupBy?: string }
         >({
             query: ({ from, to, groupBy = "DAY" }) => ({
-                url: "/api/v1/reports/cash-flow",
+                url: "/api/reports/cash-flow",
                 params: { from, to, groupBy },
             }),
             providesTags: ["Report"],
@@ -41,7 +41,7 @@ export const reportsApi = baseApi.injectEndpoints({
             { month: string; limit?: number }
         >({
             query: ({ month, limit = 5 }) => ({
-                url: "/api/v1/reports/top-expenses",
+                url: "/api/reports/top-expenses",
                 params: { month, limit },
             }),
             providesTags: ["Report"],
@@ -49,7 +49,7 @@ export const reportsApi = baseApi.injectEndpoints({
 
         getAccountSummary: builder.query<AccountSummaryResponse, void>({
             query: () => ({
-                url: "/api/v1/reports/account-summary",
+                url: "/api/reports/account-summary",
             }),
             providesTags: ["Report"],
         }),

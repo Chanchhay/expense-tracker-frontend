@@ -127,7 +127,7 @@ export default function TransactionsPage() {
                                         e.target.value as "" | TransactionType,
                                     )
                                 }
-                                className="appearance-none bg-transparent py-2 text-sm font-medium outline-none cursor-pointer w-full min-w-0"
+                                className="appearance-none bg-background text-foreground py-2 text-sm font-medium outline-none cursor-pointer w-full min-w-0"
                             >
                                 <option value="">All Types</option>
                                 <option value="INCOME">Income</option>
@@ -292,14 +292,6 @@ export default function TransactionsPage() {
                                             </DropdownMenu>
                                         </div>
 
-                                        {/* Amount */}
-                                        {/*
-                                         * FIX: switched from text-3xl to text-2xl sm:text-3xl.
-                                         * At the sm:grid-cols-2 breakpoint cards are roughly
-                                         * 300px wide — text-3xl (30px) with a long number and
-                                         * currency code overflows. text-2xl is safe at that
-                                         * width; text-3xl is restored at xl where cards are wider.
-                                         */}
                                         <div className="mb-5 min-w-0">
                                             <p
                                                 className={`text-2xl xl:text-3xl font-bold tracking-tight break-all ${isIncome ? "text-green-600" : "text-foreground"}`}
@@ -325,11 +317,6 @@ export default function TransactionsPage() {
                                                     {transaction.date}
                                                 </span>
                                                 {transaction.source && (
-                                                    /*
-                                                     * FIX: added max-w-[160px] + truncate so a very
-                                                     * long source string doesn't push the tag row
-                                                     * wider than the card.
-                                                     */
                                                     <span className="bg-muted/30 px-2.5 py-1 rounded-md border border-muted/60 truncate max-w-[160px]">
                                                         {transaction.source}
                                                     </span>
@@ -413,7 +400,7 @@ export default function TransactionsPage() {
                     <div className="pt-2 pb-2">
                         <TransactionForm
                             transaction={editingTransaction}
-                            onSuccess={handleCloseForm}
+                            onSuccessAction={handleCloseForm}
                         />
                     </div>
                 </DialogContent>
@@ -430,15 +417,6 @@ export default function TransactionsPage() {
                     if (transactionToDelete) handleDelete(transactionToDelete);
                 }}
             />
-
-            {/* Image preview lightbox */}
-            {/*
-             * FIX: image was fixed at width/height 600 which caused it to
-             * overflow on mobile. Now we let the image fill its container
-             * with object-contain and remove the fixed dimensions in favour
-             * of fill + a sized parent, which is the correct Next.js pattern
-             * for unknown-size remote images.
-             */}
             <Dialog
                 open={!!previewImage}
                 onOpenChange={(open) => !open && setPreviewImage(null)}

@@ -9,7 +9,7 @@ export const accountsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getAccounts: builder.query<AccountResponse[], void>({
             query: () => ({
-                url: "/api/v1/accounts",
+                url: "/api/accounts",
                 method: "GET",
             }),
             providesTags: ["Account"],
@@ -17,7 +17,7 @@ export const accountsApi = baseApi.injectEndpoints({
 
         getAccountById: builder.query<AccountResponse, string>({
             query: (id) => ({
-                url: `/api/v1/accounts/${id}`,
+                url: `/api/accounts/${id}`,
                 method: "GET",
             }),
             providesTags: ["Account"],
@@ -25,7 +25,7 @@ export const accountsApi = baseApi.injectEndpoints({
 
         createAccount: builder.mutation<AccountResponse, CreateAccountRequest>({
             query: (body) => ({
-                url: "/api/v1/accounts",
+                url: "/api/accounts",
                 method: "POST",
                 body,
             }),
@@ -37,7 +37,7 @@ export const accountsApi = baseApi.injectEndpoints({
             { id: string; body: UpdateAccountRequest }
         >({
             query: ({ id, body }) => ({
-                url: `/api/v1/accounts/${id}`,
+                url: `/api/accounts/${id}`,
                 method: "PUT",
                 body,
             }),
@@ -46,7 +46,7 @@ export const accountsApi = baseApi.injectEndpoints({
 
         deleteAccount: builder.mutation<void, string>({
             query: (id) => ({
-                url: `/api/v1/accounts/${id}`,
+                url: `/api/accounts/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Account", "Dashboard"],

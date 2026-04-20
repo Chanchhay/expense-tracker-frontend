@@ -6,7 +6,7 @@ export const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         login: builder.mutation<AuthResponse, LoginRequest>({
             query: (body) => ({
-                url: "/api/v1/auth/login",
+                url: "/api/auth/login",
                 method: "POST",
                 body,
             }),
@@ -15,7 +15,7 @@ export const authApi = baseApi.injectEndpoints({
 
         register: builder.mutation<AuthResponse, RegisterRequest>({
             query: (body) => ({
-                url: "/api/v1/auth/register",
+                url: "/api/auth/register",
                 method: "POST",
                 body,
             }),
@@ -23,7 +23,7 @@ export const authApi = baseApi.injectEndpoints({
 
         logout: builder.mutation<AuthResponse, void>({
             query: () => ({
-                url: "/api/v1/auth/logout",
+                url: "/api/auth/logout",
                 method: "POST",
             }),
             invalidatesTags: ["Auth", "User"],
@@ -31,7 +31,7 @@ export const authApi = baseApi.injectEndpoints({
 
         getCurrentUser: builder.query<UserResponse, void>({
             query: () => ({
-                url: "/api/v1/users/me",
+                url: "/api/users/me",
                 method: "GET",
             }),
             providesTags: ["User"],

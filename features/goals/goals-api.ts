@@ -11,14 +11,14 @@ export const goalsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getGoals: builder.query<SavingsGoalResponse[], void>({
             query: () => ({
-                url: "/api/v1/goals",
+                url: "/api/goals",
             }),
             providesTags: ["Goal"],
         }),
 
         getGoalById: builder.query<SavingsGoalResponse, string>({
             query: (id) => ({
-                url: `/api/v1/goals/${id}`,
+                url: `/api/goals/${id}`,
             }),
             providesTags: ["Goal"],
         }),
@@ -28,7 +28,7 @@ export const goalsApi = baseApi.injectEndpoints({
             CreateSavingsGoalRequest
         >({
             query: (body) => ({
-                url: "/api/v1/goals",
+                url: "/api/goals",
                 method: "POST",
                 body,
             }),
@@ -40,7 +40,7 @@ export const goalsApi = baseApi.injectEndpoints({
             { id: string; body: UpdateSavingsGoalRequest }
         >({
             query: ({ id, body }) => ({
-                url: `/api/v1/goals/${id}`,
+                url: `/api/goals/${id}`,
                 method: "PUT",
                 body,
             }),
@@ -49,7 +49,7 @@ export const goalsApi = baseApi.injectEndpoints({
 
         deleteGoal: builder.mutation<void, string>({
             query: (id) => ({
-                url: `/api/v1/goals/${id}`,
+                url: `/api/goals/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Goal"],
@@ -60,7 +60,7 @@ export const goalsApi = baseApi.injectEndpoints({
             { id: string; body: UpdateSavingsGoalStatusRequest }
         >({
             query: ({ id, body }) => ({
-                url: `/api/v1/goals/${id}/status`,
+                url: `/api/goals/${id}/status`,
                 method: "PATCH",
                 body,
             }),
@@ -72,7 +72,7 @@ export const goalsApi = baseApi.injectEndpoints({
             { id: string; body: UpdateSavingsGoalProgressRequest }
         >({
             query: ({ id, body }) => ({
-                url: `/api/v1/goals/${id}/progress`,
+                url: `/api/goals/${id}/progress`,
                 method: "PATCH",
                 body,
             }),

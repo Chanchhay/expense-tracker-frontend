@@ -31,7 +31,7 @@ import { uploadToCloudinary } from "@/lib/upload-to-cloudinary";
 
 type Props = {
     transaction?: TransactionResponse | null;
-    onSuccess?: () => void;
+    onSuccessAction?: () => void;
 };
 
 const transactionTypes: TransactionType[] = ["INCOME", "EXPENSE"];
@@ -40,7 +40,7 @@ function getToday() {
     return new Date().toISOString().split("T")[0];
 }
 
-export default function TransactionForm({ transaction, onSuccess }: Props) {
+export default function TransactionForm({ transaction, onSuccessAction }: Props) {
     const { data: accounts = [] } = useGetAccountsQuery();
     const { data: categories = [] } = useGetCategoriesQuery();
 
@@ -51,6 +51,8 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
 
     const [newFiles, setNewFiles] = useState<File[]>([]);
     const [existingImages, setExistingImages] = useState<UploadedImage[]>([]);
+
+    const [isUploadingImages, setIsUploadingImages] = useState(false);
 
     const form = useForm<TransactionFormInput, unknown, TransactionFormValues>({
         resolver: zodResolver(transactionSchema),
@@ -83,7 +85,7 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
         });
         setExistingImages(transaction?.images ? [...transaction.images] : []);
         setNewFiles([]);
-    }, [transaction?.id]);
+    }, [transaction?.id, form, transaction]);
 
     useEffect(() => {
         const currentCategoryId = form.getValues("categoryId");
@@ -114,9 +116,14 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
 
     const onSubmit = async (values: TransactionFormValues) => {
         try {
+            setIsUploadingImages(true);
+
             const uploadedNewImages = await Promise.all(
                 newFiles.map((file) => uploadToCloudinary(file)),
             );
+
+            setIsUploadingImages(false);
+
             const mergedImages = [...existingImages, ...uploadedNewImages];
             const uniqueImages = mergedImages.filter(
                 (img, i, arr) =>
@@ -125,13 +132,9 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                     ) === i,
             );
 
-            console.log("existingImages before submit:", existingImages);
-            console.log("payload images:", uniqueImages);
-
             const payload = {
                 ...values,
                 note: values.note?.trim() ? values.note : undefined,
-                // images: [...existingImages, ...uploadedNewImages],
                 images: uniqueImages,
             };
 
@@ -159,8 +162,9 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                 setNewFiles([]);
             }
 
-            onSuccess?.();
+            onSuccessAction?.();
         } catch (error: unknown) {
+            setIsUploadingImages(false);
             toast.error(getErrorMessage(error));
         }
     };
@@ -173,7 +177,8 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
         setNewFiles([]);
     };
 
-    const isSubmitting = isCreating || isUpdating;
+    // Include the image upload in the total submitting state
+    const isSubmitting = isCreating || isUpdating || isUploadingImages;
 
     const selectedAccountId = form.watch("accountId");
 
@@ -214,6 +219,7 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                                 type="number"
                                 step="0.01"
                                 placeholder="0.00"
+                                className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
                                 value={
                                     typeof field.value === "string" ||
                                     typeof field.value === "number"
@@ -238,12 +244,13 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                             data-invalid={fieldState.invalid}
                         >
                             <FieldLabel>Type</FieldLabel>
+                            {/* 🛑 FIX: Added bg-background and text-foreground to select and options */}
                             <select
                                 {...field}
-                                className="w-full rounded-md border px-3 py-2"
+                                className="w-full rounded-md border border-muted/60 bg-background text-foreground px-3 py-2 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                             >
                                 {transactionTypes.map((type) => (
-                                    <option key={type} value={type}>
+                                    <option key={type} value={type} className="bg-background text-foreground">
                                         {type}
                                     </option>
                                 ))}
@@ -266,11 +273,11 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                             <FieldLabel>Account</FieldLabel>
                             <select
                                 {...field}
-                                className="w-full rounded-md border px-3 py-2"
+                                className="w-full rounded-md border border-muted/60 bg-background text-foreground px-3 py-2 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                             >
-                                <option value="">Select account</option>
+                                <option value="" className="bg-background text-foreground">Select account</option>
                                 {accounts.map((account) => (
-                                    <option key={account.id} value={account.id}>
+                                    <option key={account.id} value={account.id} className="bg-background text-foreground">
                                         {account.name} ({account.currency})
                                     </option>
                                 ))}
@@ -279,9 +286,9 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                                 <FieldError errors={[fieldState.error]} />
                             )}
                             <div className="col-span-12 md:col-span-6">
-                                <Field className="flex flex-col gap-2">
+                                <Field className="flex flex-col gap-2 mt-2">
                                     <FieldLabel>Currency</FieldLabel>
-                                    <div className="w-full rounded-md border px-3 py-2 bg-muted">
+                                    <div className="w-full rounded-md border border-muted/60 px-3 py-2 bg-muted text-foreground shadow-sm">
                                         {selectedAccount?.currency ||
                                             "Select account first"}
                                     </div>
@@ -310,13 +317,14 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                                 onChange={(e) =>
                                     field.onChange(Number(e.target.value))
                                 }
-                                className="w-full rounded-md border px-3 py-2"
+                                className="w-full rounded-md border border-muted/60 bg-background text-foreground px-3 py-2 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                             >
-                                <option value={0}>Select category</option>
+                                <option value={0} className="bg-background text-foreground">Select category</option>
                                 {filteredCategories.map((category) => (
                                     <option
                                         key={category.id}
                                         value={category.id}
+                                        className="bg-background text-foreground"
                                     >
                                         {category.name}
                                     </option>
@@ -338,7 +346,12 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                             data-invalid={fieldState.invalid}
                         >
                             <FieldLabel>Date</FieldLabel>
-                            <Input type="date" {...field} max={getToday()} />
+                            <Input
+                                type="date"
+                                className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
+                                {...field}
+                                max={getToday()}
+                            />
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]} />
                             )}
@@ -358,6 +371,7 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                             <Input
                                 type="text"
                                 placeholder="Salary, Food, Transport"
+                                className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
                                 {...field}
                             />
                             {fieldState.invalid && (
@@ -379,7 +393,7 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                             <textarea
                                 {...field}
                                 placeholder="Optional note"
-                                className="min-h-[100px] w-full rounded-md border px-3 py-2"
+                                className="min-h-[100px] w-full rounded-md border border-muted/60 bg-background text-foreground px-3 py-2 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                             />
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]} />
@@ -409,13 +423,15 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                         className="w-full"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting
-                            ? transaction
-                                ? "Updating..."
-                                : "Creating..."
-                            : transaction
-                              ? "Update Transaction"
-                              : "Create Transaction"}
+                        {isUploadingImages
+                            ? "Uploading images..."
+                            : isSubmitting
+                                ? transaction
+                                    ? "Updating..."
+                                    : "Creating..."
+                                : transaction
+                                    ? "Update Transaction"
+                                    : "Create Transaction"}
                     </Button>
                 </div>
 
@@ -425,7 +441,7 @@ export default function TransactionForm({ transaction, onSuccess }: Props) {
                             type="button"
                             variant="outline"
                             className="w-full"
-                            onClick={onSuccess}
+                            onClick={onSuccessAction}
                         >
                             Cancel Edit
                         </Button>

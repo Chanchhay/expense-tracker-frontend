@@ -19,7 +19,7 @@ export const transactionsApi = baseApi.injectEndpoints({
             GetTransactionsParams | void
         >({
             query: (params): FetchArgs => ({
-                url: "/api/v1/transactions",
+                url: "/api/transactions",
                 method: "GET",
                 params: params ?? undefined,
             }),
@@ -31,7 +31,7 @@ export const transactionsApi = baseApi.injectEndpoints({
             CreateTransactionRequest
         >({
             query: (body) => ({
-                url: "/api/v1/transactions",
+                url: "/api/transactions",
                 method: "POST",
                 body,
             }),
@@ -43,7 +43,7 @@ export const transactionsApi = baseApi.injectEndpoints({
             { id: string; body: UpdateTransactionRequest }
         >({
             query: ({ id, body }) => ({
-                url: `/api/v1/transactions/${id}`,
+                url: `/api/transactions/${id}`,
                 method: "PUT",
                 body,
             }),
@@ -52,7 +52,7 @@ export const transactionsApi = baseApi.injectEndpoints({
 
         deleteTransaction: builder.mutation<void, string>({
             query: (id) => ({
-                url: `/api/v1/transactions/${id}`,
+                url: `/api/transactions/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Transaction", "Dashboard", "Account"],
