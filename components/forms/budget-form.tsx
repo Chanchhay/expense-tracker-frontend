@@ -20,9 +20,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supportedCurrencies } from "@/features/accounts/types";
 
+// 🛑 FIX: Renamed onSuccess to onSuccessAction for Next.js 15 strict mode
 type Props = {
     budget?: BudgetResponse | null;
-    onSuccess?: () => void;
+    onSuccessAction?: () => void;
 };
 
 function getCurrentMonth() {
@@ -33,7 +34,7 @@ function getCurrentYear() {
     return String(new Date().getFullYear());
 }
 
-export default function BudgetForm({ budget, onSuccess }: Props) {
+export default function BudgetForm({ budget, onSuccessAction }: Props) {
     const { data: categories = [] } = useGetCategoriesQuery();
 
     const [createBudget, { isLoading: isCreating }] = useCreateBudgetMutation();
@@ -53,6 +54,8 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
             year: getCurrentYear(),
         },
     });
+
+    const selectedYear = form.watch("year");
 
     useEffect(() => {
         form.reset({
@@ -83,7 +86,8 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
                 form.reset();
             }
 
-            onSuccess?.();
+            // 🛑 FIX: Call the updated prop name
+            onSuccessAction?.();
         } catch (error: unknown) {
             toast.error(getErrorMessage(error));
         }
@@ -198,28 +202,46 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
                 <Controller
                     control={form.control}
                     name="month"
-                    render={({ field, fieldState }) => (
-                        <Field
-                            className="flex flex-col gap-1.5"
-                            data-invalid={fieldState.invalid}
-                        >
-                            <FieldLabel className="text-sm font-semibold text-foreground">
-                                Month
-                            </FieldLabel>
-                            <Input
-                                type="number"
-                                min="1"
-                                max="12"
-                                placeholder="e.g. 4"
-                                className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
-                                value={field.value ?? ""}
-                                onChange={(e) => field.onChange(e.target.value)}
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[fieldState.error]} />
-                            )}
-                        </Field>
-                    )}
+                    render={({ field, fieldState }) => {
+                        const currentYearStr = getCurrentYear();
+                        const minMonth =
+                            selectedYear === currentYearStr
+                                ? getCurrentMonth()
+                                : "1";
+
+                        return (
+                            <Field
+                                className="flex flex-col gap-1.5"
+                                data-invalid={fieldState.invalid}
+                            >
+                                <FieldLabel className="text-sm font-semibold text-foreground">
+                                    Month
+                                </FieldLabel>
+                                <Input
+                                    type="number"
+                                    min={minMonth}
+                                    max="12"
+                                    placeholder="e.g. 4"
+                                    className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
+                                    value={field.value ?? ""}
+                                    onChange={(e) => {
+                                        let val = e.target.value;
+                                        if (
+                                            selectedYear === currentYearStr &&
+                                            Number(val) < Number(minMonth) &&
+                                            val !== ""
+                                        ) {
+                                            val = minMonth;
+                                        }
+                                        field.onChange(val);
+                                    }}
+                                />
+                                {fieldState.invalid && (
+                                    <FieldError errors={[fieldState.error]} />
+                                )}
+                            </Field>
+                        );
+                    }}
                 />
 
                 {/* Year */}
@@ -236,12 +258,29 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
                             </FieldLabel>
                             <Input
                                 type="number"
-                                min="2020"
+                                min={getCurrentYear()}
                                 max="2100"
                                 placeholder="e.g. 2026"
                                 className="rounded-md border-muted/60 bg-background shadow-sm focus-visible:ring-primary/20"
                                 value={field.value ?? ""}
-                                onChange={(e) => field.onChange(e.target.value)}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    field.onChange(val);
+
+                                    if (val === getCurrentYear()) {
+                                        const currentMonth =
+                                            Number(getCurrentMonth());
+                                        const formMonth = Number(
+                                            form.getValues("month"),
+                                        );
+                                        if (formMonth < currentMonth) {
+                                            form.setValue(
+                                                "month",
+                                                String(currentMonth),
+                                            );
+                                        }
+                                    }
+                                }}
                             />
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]} />
@@ -255,7 +294,7 @@ export default function BudgetForm({ budget, onSuccess }: Props) {
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={onSuccess}
+                    onClick={onSuccessAction} // 🛑 FIX: Call the updated prop name
                     className="rounded-md font-medium"
                 >
                     Cancel
