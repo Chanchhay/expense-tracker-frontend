@@ -15,9 +15,6 @@ const pills = [
     { icon: "🔒", label: "Secure" },
 ];
 
-// Satori (the renderer behind ImageResponse) requires EVERY element that has
-// more than one child to declare display: "flex" explicitly. There is no
-// default block/inline layout — omitting it causes the prerender build error.
 export default function OGImage() {
     return new ImageResponse(
         <div
@@ -32,7 +29,6 @@ export default function OGImage() {
                 overflow: "hidden",
             }}
         >
-            {/* ── Background dot grid ───────────────────────────────── */}
             <div
                 style={{
                     display: "flex",
@@ -44,7 +40,6 @@ export default function OGImage() {
                 }}
             />
 
-            {/* ── Top green glow ────────────────────────────────────── */}
             <div
                 style={{
                     display: "flex",
@@ -59,7 +54,6 @@ export default function OGImage() {
                 }}
             />
 
-            {/* ── Bottom-right blue glow ────────────────────────────── */}
             <div
                 style={{
                     display: "flex",
@@ -74,7 +68,6 @@ export default function OGImage() {
                 }}
             />
 
-            {/* ── Main content ──────────────────────────────────────── */}
             <div
                 style={{
                     display: "flex",
