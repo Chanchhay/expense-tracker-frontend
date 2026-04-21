@@ -23,6 +23,9 @@ const BASE_URL = "https://expense-tracker-frontend-one-lake.vercel.app";
 export const metadata: Metadata = {
     metadataBase: new URL(BASE_URL),
 
+    verification: {
+        google: "uH0_fSS-lVvlYj3xKuWDQLT56PRpKEho92YJgZtJ6Zs",
+    },
     title: {
         default: "Plutolio – From Financial Chaos to Perfect Clarity",
         template: "%s | Plutolio",
