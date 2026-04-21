@@ -102,6 +102,7 @@ Many people struggle with:
 
 ### 🖥️ Frontend
 - **Next.js (App Router)**
+- **React**
 - **RTK Query (Redux Toolkit)**
 - **React Hook Form + Zod**
 - **shadcn/ui**
@@ -123,27 +124,22 @@ Many people struggle with:
 - **Cloudinary** (Image Upload)
 - **Google OAuth**
 - **Facebook OAuth**
-- **Railway (for backend deployment)**
-- **Vercel (for frontend deployment)**
 
 ---
 
 ## 🔐 Authentication Flow
 
 ### Local Login
-Frontend → Spring Boot → JWT → Cookie → Authenticated Requests
+
 ### Social Login (Google / Facebook)
-Frontend → OAuth Provider → Spring Boot → JWT → Cookie → Dashboard
+
+
 All authentication methods share the same JWT system for consistency.
 
 ---
 
 ## 🧠 Architecture Overview
-Frontend (Next.js)  
-↓  
-REST API (Spring Boot)  
-↓  
-Database (PostgreSQL)
+
 
 - Stateless backend using JWT
 - Secure cookie-based authentication
