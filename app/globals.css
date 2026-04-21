@@ -136,6 +136,28 @@
     --sidebar-ring: hsl(152 76% 53%);
 }
 
+/* --- Theme View Transitions --- */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+/* Make sure the Dark Mode always sits on top */
+::view-transition-old(root) {
+    z-index: 2;
+}
+::view-transition-new(root) {
+    z-index: 1;
+}
+
+.dark::view-transition-old(root) {
+    z-index: 1;
+}
+.dark::view-transition-new(root) {
+    z-index: 2;
+}
+
 @layer base {
     * {
         @apply border-border outline-ring/50;
