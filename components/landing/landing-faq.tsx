@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronDown, ChevronRight, BarChart3 } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetCurrentUserQuery } from "@/features/auth/auth-api";
 
@@ -28,7 +28,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
     );
 }
 
-export default function LandingFaqAndFooter() {
+export default function LandingFaq() {
     const { data: user } = useGetCurrentUserQuery();
 
     return (
@@ -131,99 +131,6 @@ export default function LandingFaqAndFooter() {
                     </div>
                 </div>
             </section>
-
-            <footer className="border-t border-border bg-card/50 py-10 md:py-14">
-                <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
-                        <div className="flex items-center gap-2.5 font-bold text-xl">
-                            <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                                <BarChart3 className="size-4" />
-                            </div>
-                            Plutolio
-                        </div>
-
-                        <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground font-medium">
-                            <Link
-                                href="#how-it-works"
-                                className="hover:text-foreground transition-colors"
-                            >
-                                How it Works
-                            </Link>
-                            <Link
-                                href="#features"
-                                className="hover:text-foreground transition-colors"
-                            >
-                                Features
-                            </Link>
-                            <Link
-                                href="#budgets"
-                                className="hover:text-foreground transition-colors"
-                            >
-                                Budgets
-                            </Link>
-                            <Link
-                                href="#faq"
-                                className="hover:text-foreground transition-colors"
-                            >
-                                FAQ
-                            </Link>
-                            {!user && (
-                                <>
-                                    <Link
-                                        href="/login"
-                                        className="hover:text-foreground transition-colors"
-                                    >
-                                        Login
-                                    </Link>
-                                    <Link
-                                        href="/register"
-                                        className="hover:text-foreground transition-colors"
-                                    >
-                                        Register
-                                    </Link>
-                                </>
-                            )}
-                        </nav>
-
-                        {user ? (
-                            <Button
-                                asChild
-                                className="rounded-full px-6 bg-foreground text-background hover:bg-foreground/90"
-                            >
-                                <Link href="/dashboard">Dashboard →</Link>
-                            </Button>
-                        ) : (
-                            <Button
-                                asChild
-                                className="rounded-full px-6 bg-foreground text-background hover:bg-foreground/90"
-                            >
-                                <Link href="/register">Start Free →</Link>
-                            </Button>
-                        )}
-                    </div>
-
-                    <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-                        <p>
-                            © {new Date().getFullYear()} Plutolio. All rights
-                            reserved.
-                        </p>
-                        <div className="flex gap-4">
-                            <Link
-                                href="#"
-                                className="hover:text-foreground transition-colors"
-                            >
-                                Privacy Policy
-                            </Link>
-                            <Link
-                                href="#"
-                                className="hover:text-foreground transition-colors"
-                            >
-                                Terms of Service
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </footer>
         </>
     );
 }
