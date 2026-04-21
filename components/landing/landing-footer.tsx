@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, ChevronRight } from "lucide-react";
+import { ChevronRight, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function LandingFooter() {
@@ -48,7 +48,7 @@ export default function LandingFooter() {
                     <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
                         <div className="flex items-center gap-2.5 font-bold text-xl">
                             <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                                <BarChart3 className="size-4" />
+                                <Wallet className="size-4" />
                             </div>
                             Plutolio
                         </div>
