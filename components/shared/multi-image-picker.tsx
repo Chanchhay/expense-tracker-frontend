@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 type Props = {
     files: File[];
@@ -67,10 +68,12 @@ export default function MultiImagePicker({
                             key={image.imagePublicId}
                             className="space-y-2 rounded-md border p-2"
                         >
-                            <img
+                            <Image
                                 src={image.imageUrl}
                                 alt="Existing"
                                 className="h-28 w-full rounded-md object-cover"
+                                width={600}
+                                height={600}
                             />
                             <Button
                                 type="button"
@@ -90,10 +93,12 @@ export default function MultiImagePicker({
                             key={`${file.name}-${index}`}
                             className="space-y-2 rounded-md border p-2"
                         >
-                            <img
+                            <Image
                                 src={URL.createObjectURL(file)}
                                 alt="Preview"
                                 className="h-28 w-full rounded-md object-cover"
+                                width={600}
+                                height={600}
                             />
                             <Button
                                 type="button"

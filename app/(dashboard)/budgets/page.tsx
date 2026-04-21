@@ -148,7 +148,6 @@ export default function BudgetsPage() {
                         )}
                     </div>
 
-                    {/* Action buttons — full-width on mobile, auto on sm+ */}
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                         <CategorySheet
                             trigger={
@@ -345,12 +344,6 @@ export default function BudgetsPage() {
                         )}
                     </div>
 
-                    {/* RIGHT — Budget list (5 cols on lg+) */}
-                    {/*
-                     * FIX: added max-h + overflow-y-auto so the sticky card never
-                     * overflows the viewport on short screens. On mobile it just
-                     * stacks naturally without sticky behaviour.
-                     */}
                     <div className="lg:col-span-5 lg:sticky lg:top-24 min-w-0">
                         <Card className="rounded-lg shadow-sm border-muted/60 overflow-hidden">
                             <CardHeader className="bg-muted/20 border-b border-muted/60 py-4">
@@ -364,7 +357,6 @@ export default function BudgetsPage() {
                                 </CardTitle>
                             </CardHeader>
 
-                            {/* Scrollable list — capped so it doesn't push off-screen when sticky */}
                             <CardContent className="p-0 lg:max-h-[calc(100vh-14rem)] lg:overflow-y-auto">
                                 {isBudgetsLoading ? (
                                     <div className="p-8 text-center text-muted-foreground">
@@ -381,7 +373,6 @@ export default function BudgetsPage() {
                                                 key={budget.id}
                                                 className="flex items-center justify-between gap-3 p-4 hover:bg-muted/10 transition-colors group min-w-0"
                                             >
-                                                {/* Category + period — truncates gracefully */}
                                                 <div className="min-w-0 flex-1">
                                                     <p className="font-semibold text-foreground leading-none truncate">
                                                         {budget.categoryName}
@@ -392,7 +383,6 @@ export default function BudgetsPage() {
                                                     </p>
                                                 </div>
 
-                                                {/* Amount + actions — never shrinks below its content */}
                                                 <div className="flex items-center gap-2 shrink-0">
                                                     <p className="font-bold text-foreground text-sm tabular-nums">
                                                         {budget.amount.toLocaleString(

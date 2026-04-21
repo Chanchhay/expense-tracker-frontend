@@ -20,7 +20,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supportedCurrencies } from "@/features/accounts/types";
 
-// 🛑 FIX: Renamed onSuccess to onSuccessAction for Next.js 15 strict mode
 type Props = {
     budget?: BudgetResponse | null;
     onSuccessAction?: () => void;
@@ -86,7 +85,6 @@ export default function BudgetForm({ budget, onSuccessAction }: Props) {
                 form.reset();
             }
 
-            // 🛑 FIX: Call the updated prop name
             onSuccessAction?.();
         } catch (error: unknown) {
             toast.error(getErrorMessage(error));
@@ -294,7 +292,7 @@ export default function BudgetForm({ budget, onSuccessAction }: Props) {
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={onSuccessAction} // 🛑 FIX: Call the updated prop name
+                    onClick={onSuccessAction}
                     className="rounded-md font-medium"
                 >
                     Cancel

@@ -38,7 +38,6 @@ export function BottomNav() {
                             <Icon
                                 className={`size-6 ${isActive ? "scale-110 transition-transform" : ""}`}
                             />
-                            {/* Adding a tiny active indicator dot instead of text for that premium feel */}
                             {isActive && (
                                 <div className="absolute bottom-2 h-1 w-1 rounded-full bg-primary" />
                             )}

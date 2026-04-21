@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 type Props = {
     file: File | null;
@@ -53,10 +54,12 @@ export default function SingleImagePicker({
             </div>
 
             {currentPreview && (
-                <img
+                <Image
                     src={currentPreview}
                     alt="Preview"
                     className="h-32 w-32 rounded-md border object-cover"
+                    width={600}
+                    height={600}
                 />
             )}
         </div>

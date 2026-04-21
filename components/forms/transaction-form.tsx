@@ -177,7 +177,6 @@ export default function TransactionForm({ transaction, onSuccessAction }: Props)
         setNewFiles([]);
     };
 
-    // Include the image upload in the total submitting state
     const isSubmitting = isCreating || isUpdating || isUploadingImages;
 
     const selectedAccountId = form.watch("accountId");
@@ -244,7 +243,6 @@ export default function TransactionForm({ transaction, onSuccessAction }: Props)
                             data-invalid={fieldState.invalid}
                         >
                             <FieldLabel>Type</FieldLabel>
-                            {/* 🛑 FIX: Added bg-background and text-foreground to select and options */}
                             <select
                                 {...field}
                                 className="w-full rounded-md border border-muted/60 bg-background text-foreground px-3 py-2 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"

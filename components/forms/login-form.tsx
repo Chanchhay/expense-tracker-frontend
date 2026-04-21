@@ -1,12 +1,12 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 
 import { useLoginMutation } from "@/features/auth/auth-api";
 import { LoginFormValues, loginSchema } from "@/features/auth/schema";
@@ -33,6 +33,7 @@ function LoginFormContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [login, { isLoading }] = useLoginMutation();
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         const error = searchParams.get("error");
@@ -71,15 +72,6 @@ function LoginFormContent() {
     };
 
     const handleSocialAuth = (provider: "google" | "facebook") => {
-        // const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-
-        // if (!backendUrl) {
-        //     toast.error("Backend URL is missing");
-        //     return;
-        // }
-
-        // window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
-        // window.location.href = `/oauth2/authorization/${provider}`;
         window.location.href = `/social-login/${provider}`;
     };
 
@@ -142,12 +134,26 @@ function LoginFormContent() {
                                         Forgot password?
                                     </Link>
                                 </div>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="rounded-md border-muted/60 bg-background shadow-sm h-11"
-                                    {...field}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        className="rounded-md border-muted/60 bg-background shadow-sm h-11 pr-10"
+                                        {...field}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none transition-colors"
+                                        aria-label={showPassword ? "Hide password" : "Show password"}
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff className="size-4" />
+                                        ) : (
+                                            <Eye className="size-4" />
+                                        )}
+                                    </button>
+                                </div>
                                 {fieldState.invalid && (
                                     <FieldError errors={[fieldState.error]} />
                                 )}

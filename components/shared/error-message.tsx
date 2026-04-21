@@ -22,13 +22,11 @@ export function getErrorMessage(error: unknown): string {
             return errData.details[0];
         }
 
-        // 2. Check for a standard message field
         if (errData?.message) {
             return errData.message;
         }
     }
 
-    // Fallback for network failures or completely unknown errors
     if (error instanceof Error) return error.message;
     return "An unexpected error occurred. Please try again.";
 }

@@ -35,7 +35,13 @@ export const transactionsApi = baseApi.injectEndpoints({
                 method: "POST",
                 body,
             }),
-            invalidatesTags: ["Transaction", "Dashboard", "Account"],
+            invalidatesTags: [
+                "Transaction",
+                "Dashboard",
+                "Report",
+                "Account",
+                "Budget",
+            ],
         }),
 
         updateTransaction: builder.mutation<
@@ -47,7 +53,13 @@ export const transactionsApi = baseApi.injectEndpoints({
                 method: "PUT",
                 body,
             }),
-            invalidatesTags: ["Transaction", "Dashboard", "Account"],
+            invalidatesTags: [
+                "Transaction",
+                "Dashboard",
+                "Report",
+                "Account",
+                "Budget",
+            ],
         }),
 
         deleteTransaction: builder.mutation<void, string>({
@@ -55,7 +67,13 @@ export const transactionsApi = baseApi.injectEndpoints({
                 url: `/api/transactions/${id}`,
                 method: "DELETE",
             }),
-            invalidatesTags: ["Transaction", "Dashboard", "Account"],
+            invalidatesTags: [
+                "Transaction",
+                "Dashboard",
+                "Report",
+                "Account",
+                "Budget",
+            ],
         }),
     }),
 });
