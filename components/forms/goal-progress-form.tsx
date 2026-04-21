@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 
 type Props = {
     goal: SavingsGoalResponse;
-    onSuccess?: () => void; // Added onSuccess so the modal closes
+    onSuccess?: () => void;
 };
 
 export default function GoalProgressForm({ goal, onSuccess }: Props) {

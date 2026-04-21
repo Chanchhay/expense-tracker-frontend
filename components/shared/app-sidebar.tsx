@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Wallet } from "lucide-react"; // Using this as the logo icon
+import { Wallet } from "lucide-react";
 
 import { dashboardNavItems } from "@/lib/constants";
 import { useGetCurrentUserQuery } from "@/features/auth/auth-api";

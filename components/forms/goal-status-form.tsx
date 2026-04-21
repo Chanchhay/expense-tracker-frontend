@@ -4,7 +4,6 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
 
-// Assuming you have an API mutation like this:
 import { useUpdateGoalStatusMutation } from "@/features/goals/goals-api";
 import type { SavingsGoalResponse } from "@/features/goals/types";
 import { getErrorMessage } from "@/lib/get-error-message";

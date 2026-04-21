@@ -18,7 +18,7 @@ import SingleImagePicker from "@/components/shared/single-image-picker";
 
 type Props = {
     user: UserResponse;
-    onSuccess?: () => void; // Added onSuccess to close the modal
+    onSuccess?: () => void;
 };
 
 export default function ProfileForm({ user, onSuccess }: Props) {
@@ -29,7 +29,6 @@ export default function ProfileForm({ user, onSuccess }: Props) {
         user.profile ?? null,
     );
 
-    // Track previous ID to prevent cascading render effects (React state fix)
     const [prevUserId, setPrevUserId] = useState<string | undefined>(user.id);
 
     if (user.id !== prevUserId) {

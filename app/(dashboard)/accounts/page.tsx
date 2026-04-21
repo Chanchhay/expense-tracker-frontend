@@ -104,7 +104,6 @@ export default function AccountsPage() {
 
     const handleCloseForm = () => {
         setIsFormOpen(false);
-        // Slight delay to allow dialog out-animation before clearing data
         setTimeout(() => setEditingAccount(null), 200);
     };
 
@@ -239,7 +238,6 @@ export default function AccountsPage() {
                 )}
             </div>
 
-            {/* Modal for Creating/Editing Account */}
             <Dialog
                 open={isFormOpen}
                 onOpenChange={(open) => !open && handleCloseForm()}
@@ -266,8 +264,6 @@ export default function AccountsPage() {
                 </DialogContent>
             </Dialog>
 
-            {/* Delete Confirmation */}
-            {/* Delete Confirmation */}
             <DeleteConfirmDialog
                 isOpen={!!accountToDelete}
                 onOpenChange={(open) => !open && setAccountToDelete(null)}

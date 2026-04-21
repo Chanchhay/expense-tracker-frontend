@@ -243,7 +243,6 @@ export default function DashboardPage() {
                                 Cash Flow Performance
                             </CardTitle>
                         </CardHeader>
-                        {/* FIX: Replaced min-h with a strict h-[350px] and w-full */}
                         <CardContent className="h-[350px] w-full pb-6">
                             <OverviewChart data={chartData} />
                         </CardContent>
@@ -292,8 +291,6 @@ export default function DashboardPage() {
                         ) : (
                             <div className="space-y-1">
                                 {data.recentTransactions.map((transaction) => {
-                                    // Determine if it's income or expense based on amount or a type field
-                                    // Assuming positive is income, negative is expense for styling
                                     const isIncome =
                                         transaction.type === "INCOME";
                                     return (
@@ -302,7 +299,6 @@ export default function DashboardPage() {
                                             className="flex items-center justify-between p-4 hover:bg-muted/30 rounded-2xl transition-colors"
                                         >
                                             <div className="flex items-center gap-4">
-                                                {/* Icon block resembling the sample's stock/crypto logos */}
                                                 <div
                                                     className={`flex items-center justify-center size-10 rounded-full ${isIncome ? "bg-green-100 text-green-600" : "bg-red-100 text-red-500"}`}
                                                 >

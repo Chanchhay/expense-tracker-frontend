@@ -95,13 +95,11 @@ export default function GoalForm({ goal, onSuccessAction }: Props) {
 
             onSuccessAction?.();
         } catch (error: unknown) {
-            // 🛑 FIX 4: Ensure loading state turns off if upload or save fails
             setIsUploadingImage(false);
             toast.error(getErrorMessage(error));
         }
     };
 
-    // Include the image upload in the total submitting state
     const isSubmitting = isCreating || isUpdating || isUploadingImage;
 
     return (
@@ -214,7 +212,6 @@ export default function GoalForm({ goal, onSuccessAction }: Props) {
                     disabled={isSubmitting}
                     className="rounded-md font-semibold shadow-sm w-full sm:w-auto min-w-[120px]"
                 >
-                    {/* 🛑 FIX 6: Dynamic button text so user knows image is uploading */}
                     {isUploadingImage
                         ? "Uploading image..."
                         : isSubmitting

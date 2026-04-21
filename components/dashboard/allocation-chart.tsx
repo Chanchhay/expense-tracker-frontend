@@ -13,21 +13,18 @@ interface AllocationChartProps {
 }
 
 export function AllocationChart({ data }: AllocationChartProps) {
-    // Dynamically calculate the total so the percentages are accurate!
     const totalValue = data.reduce((sum, item) => sum + item.value, 0);
 
     return (
         <div className="flex h-full w-full items-center justify-between gap-4 px-2">
             {/* The Donut Chart */}
             <div className="h-62.5 w-1/2 flex-1">
-                {/* Removed the hard minWidth/minHeight that was causing clipping */}
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
                             data={data}
                             cx="50%"
                             cy="50%"
-                            // Using percentages makes the donut scale perfectly to any screen size
                             innerRadius="65%"
                             outerRadius="85%"
                             paddingAngle={5}
@@ -67,7 +64,6 @@ export function AllocationChart({ data }: AllocationChartProps) {
             {/* Custom Legend */}
             <div className="flex w-1/2 flex-col gap-3">
                 {data.map((item) => {
-                    // Safely calculate the actual percentage
                     const percentage =
                         totalValue > 0
                             ? Math.round((item.value / totalValue) * 100)

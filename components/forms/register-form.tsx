@@ -1,11 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 
 import { useRegisterMutation } from "@/features/auth/auth-api";
 import { RegisterFormValues, registerSchema } from "@/features/auth/schema";
@@ -32,6 +33,9 @@ export default function RegisterForm() {
     const router = useRouter();
     const [registerUser, { isLoading }] = useRegisterMutation();
 
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -53,14 +57,6 @@ export default function RegisterForm() {
     };
 
     const handleSocialAuth = (provider: "google" | "facebook") => {
-        // const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-
-        // if (!backendUrl) {
-        //     toast.error("Backend URL is missing");
-        //     return;
-        // }
-
-        // window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
         window.location.href = `/social-login/${provider}`;
     };
 
@@ -139,12 +135,34 @@ export default function RegisterForm() {
                                 <FieldLabel className="text-sm font-semibold">
                                     Password
                                 </FieldLabel>
-                                <Input
-                                    type="password"
-                                    placeholder="Create a password"
-                                    className="rounded-md border-muted/60 bg-background shadow-sm h-11"
-                                    {...field}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={
+                                            showPassword ? "text" : "password"
+                                        }
+                                        placeholder="Create a password"
+                                        className="rounded-md border-muted/60 bg-background shadow-sm h-11 pr-10"
+                                        {...field}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowPassword(!showPassword)
+                                        }
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none transition-colors"
+                                        aria-label={
+                                            showPassword
+                                                ? "Hide password"
+                                                : "Show password"
+                                        }
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff className="size-4" />
+                                        ) : (
+                                            <Eye className="size-4" />
+                                        )}
+                                    </button>
+                                </div>
                                 {fieldState.invalid && (
                                     <FieldError errors={[fieldState.error]} />
                                 )}
@@ -163,12 +181,38 @@ export default function RegisterForm() {
                                 <FieldLabel className="text-sm font-semibold">
                                     Confirm Password
                                 </FieldLabel>
-                                <Input
-                                    type="password"
-                                    placeholder="Confirm your password"
-                                    className="rounded-md border-muted/60 bg-background shadow-sm h-11"
-                                    {...field}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={
+                                            showConfirmPassword
+                                                ? "text"
+                                                : "password"
+                                        }
+                                        placeholder="Confirm your password"
+                                        className="rounded-md border-muted/60 bg-background shadow-sm h-11 pr-10"
+                                        {...field}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowConfirmPassword(
+                                                !showConfirmPassword,
+                                            )
+                                        }
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none transition-colors"
+                                        aria-label={
+                                            showConfirmPassword
+                                                ? "Hide password"
+                                                : "Show password"
+                                        }
+                                    >
+                                        {showConfirmPassword ? (
+                                            <EyeOff className="size-4" />
+                                        ) : (
+                                            <Eye className="size-4" />
+                                        )}
+                                    </button>
+                                </div>
                                 {fieldState.invalid && (
                                     <FieldError errors={[fieldState.error]} />
                                 )}

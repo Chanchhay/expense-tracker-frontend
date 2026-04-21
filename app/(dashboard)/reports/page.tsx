@@ -104,10 +104,8 @@ export default function ReportsPage() {
         refetchOnReconnect: true,
     });
 
-    // --- NEW LOGIC ADDED BELOW (Does not change your logic above) ---
     const [selectedCurrency, setSelectedCurrency] = useState("");
 
-    // Extract unique currencies from the fetched data
     const availableCurrencies = Array.from(
         new Set([
             ...(monthlySummary?.groups.map((g) => g.currency) || []),
@@ -116,10 +114,8 @@ export default function ReportsPage() {
         ]),
     );
 
-    // Determine which currency view to display
     const effectiveCurrency = selectedCurrency || availableCurrencies[0] || "";
 
-    // Filter data down to the effective currency for the UI
     const activeMonthlySummary = monthlySummary?.groups.find(
         (g) => g.currency === effectiveCurrency,
     );
@@ -127,7 +123,6 @@ export default function ReportsPage() {
         (g) => g.currency === effectiveCurrency,
     );
 
-    // Format chart data for Recharts
     const chartData =
         activeCashFlow?.items.map((item) => ({
             name: item.period,
