@@ -1,12 +1,14 @@
 import LandingHeader from "@/components/landing/landing-header";
 import LandingHero from "@/components/landing/landing-hero";
 import LandingFeatures from "@/components/landing/landing-features";
-import LandingFaqAndFooter from "@/components/landing/landing-faq";
 import { Metadata } from "next";
+import LandingFaq from "@/components/landing/landing-faq";
+import LandingFooter from "@/components/landing/landing-footer";
 
 export const metadata: Metadata = {
     title: "Plutolio | Personal Finance Tracker",
-    description: "Track income, expenses, and manage budgets in one secure app.",
+    description:
+        "Track income, expenses, and manage budgets in one secure app.",
 };
 
 export default function LandingPage() {
@@ -16,7 +18,8 @@ export default function LandingPage() {
         name: "Plutolio",
         operatingSystem: "Web",
         applicationCategory: "FinanceApplication",
-        description: "Track income, expenses, and manage budgets in one secure app.",
+        description:
+            "Track income, expenses, and manage budgets in one secure app.",
         offers: {
             "@type": "Offer",
             price: "0",
@@ -50,7 +53,8 @@ export default function LandingPage() {
             <main>
                 <LandingHero />
                 <LandingFeatures />
-                <LandingFaqAndFooter />
+                <LandingFaq />
+                <LandingFooter />
             </main>
         </div>
     );
